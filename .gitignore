@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+.history/
+
+# Build outputs
+dist/
+build/
+
+# Environment variables
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+logs/*.json
+
+# Claude
+.claude/settings.local.json
+
+prisma/generated/

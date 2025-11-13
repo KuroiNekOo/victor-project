@@ -1,0 +1,52 @@
+services:
+  # Base de données PostgreSQL
+  postgres:
+    image: postgres:18-alpine
+    container_name: victor-postgres
+    # restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-victor}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-victor_password}
+      POSTGRES_DB: ${POSTGRES_DB:-victor_db}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U victor -d victor_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Application Node.js
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: victor-app
+    # restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: ${PORT:-3000}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-victor}:${POSTGRES_PASSWORD:-victor_password}@postgres:5432/${POSTGRES_DB:-victor_db}?schema=public
+    ports:
+      - "${PORT:-3000}:3000"
+    volumes:
+      # Hot reload en dev
+      # Monte vos dossiers locaux → dans le conteneur à /app
+      # Quand vous modifiez un fichier sur votre PC → changement visible instantanément dans le conteneur
+      - ./src:/app/src
+      - ./views:/app/views
+      - ./public:/app/public
+      - ./prisma:/app/prisma
+
+      # Volume anonyme qui "masque" le dossier node_modules
+      # Empêche d'écraser les node_modules du conteneur avec ceux de votre PC
+      - /app/node_modules
+
+volumes:
+  postgres_data:
+    driver: local

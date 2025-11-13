@@ -1,0 +1,331 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output        = "./generated/prisma"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// TABLES PRINCIPALES
+// ============================================
+
+model Species {
+  id          Int     @id @default(autoincrement())
+  speciesFr   String? @map("species_fr") @db.VarChar(255)
+  speciesLat  String? @unique @map("species_lat") @db.VarChar(255)
+  speciesEn   String? @map("species_en") @db.VarChar(255)
+  family      String? @db.VarChar(255)
+  genus       String? @db.VarChar(255)
+  inFrance    Boolean? @map("in_france")
+  inEurope    Boolean? @map("in_europe")
+
+  dispersalDistance DispersalDistance?
+  biliographies  BibliographySpecies[]
+
+  numberAgeGroups      NumberAgeGroup[]
+  eurobatraitData      EurobatraitData?
+  anageData            AnageData?
+
+  @@map("species")
+}
+
+model Bibliography {
+  id                          Int      @id @default(autoincrement())
+  citation                    String?  @db.Text
+  reference                   String?  @db.Text
+  publicationDate             String?  @map("publication_date") @db.VarChar(255)
+  country                     String?  @db.VarChar(255)
+  region                      String?  @db.VarChar(255)
+  studyDuration               String?  @map("study_duration") @db.VarChar(255)
+  datesOfTheStudy             String?  @map("dates_of_the_study") @db.VarChar(255)
+  season                      String?  @db.VarChar(255)
+  sampleSize                  Decimal? @map("sample_size") @db.Decimal
+  numberMalesSampled          Decimal? @map("number_males_sampled") @db.Decimal
+  numberFemalesSampled        Decimal? @map("number_females_sampled") @db.Decimal
+  areaSizeHa                  Decimal? @map("area_size_ha") @db.Decimal
+  methodologyUsed             String?  @map("methodology_used") @db.Text
+  modelUsed                   String?  @map("model_used") @db.Text
+  captureMethod               String?  @map("capture_method") @db.Text
+  markingMethod               String?  @map("marking_method") @db.Text
+  captureFrequency            String?  @map("capture_frequency") @db.Text
+  meanRecaptureProbability    Decimal? @map("mean_recapture_probability") @db.Decimal
+  sdMeanRecaptureProbability  Decimal? @map("sd_mean_recapture_probability") @db.Decimal
+  biasesAndProblems           String?  @map("biases_and_problems") @db.Text
+  otherNote                   String?  @map("other_note") @db.Text
+  reliability                 String?  @db.VarChar(255)
+
+  species        BibliographySpecies[]
+
+  @@map("bibliography")
+}
+
+// Table d'association many-to-many entre Bibliography et Species
+model BibliographySpecies {
+  id             Int      @id @default(autoincrement())
+  bibliographyId Int
+  speciesId      Int
+
+  bibliography   Bibliography @relation(fields: [bibliographyId], references: [id], onDelete: Cascade)
+  species        Species      @relation(fields: [speciesId], references: [id], onDelete: Cascade)
+
+  @@map("bibliography_species")
+}
+
+// ============================================
+// HIÉRARCHIE DES DONNÉES DÉMOGRAPHIQUES
+// ============================================
+
+model NumberAgeGroup {
+  id                Int     @id @default(autoincrement())
+  numberOfAgeGroups Int?    @map("number_of_age_groups")
+  
+  /*
+  Lecture correcte :
+  👉 Quand Species (parent) est supprimé
+  👉 Alors NumberAgeGroup (enfant) est supprimé en cascade
+
+  PAS dans l'autre sens :
+  ❌ Quand NumberAgeGroup est supprimé
+  ❌ Species reste intact
+  */
+  speciesId Int?     @map("species_id")
+  species   Species? @relation(fields: [speciesId], references: [id], onDelete: Cascade)
+
+  ageGroups AgeGroup[]
+
+  @@map("number_age_groups")
+}
+
+model AgeGroup {
+  id           Int     @id @default(autoincrement())
+  ageGroup     Int?    @map("age_group")
+  consideredAs String? @map("considered_as") @db.VarChar(255)
+  
+  numberAgeGroupId Int?            @map("number_age_group_id")
+  numberAgeGroup   NumberAgeGroup? @relation(fields: [numberAgeGroupId], references: [id], onDelete: Cascade)
+
+  survivals   Survival[]
+  fecundities Fecundity[]
+
+  @@map("age_group")
+}
+
+model Survival {
+  id                              Int      @id @default(autoincrement())
+  ageGroup                        Int?     @map("age_group")
+  ageGroupConsideredInPublication String?  @map("age_group_considered_in_the_publication") @db.VarChar(255)
+  sex                             String?  @db.VarChar(50)
+  minSurvivalRate                 Decimal? @map("min_survival_rate") @db.Decimal
+  meanSurvivalRate                Decimal? @map("mean_survival_rate") @db.Decimal
+  maxSurvivalRate                 Decimal? @map("max_survival_rate") @db.Decimal
+  recaptureProbability            Decimal? @map("recapture_probability") @db.Decimal
+  minLongevityYears               Decimal? @map("min_longevity_years") @db.Decimal
+  meanLongevityYears              Decimal? @map("mean_longevity_years") @db.Decimal
+  maxLongevityYears               Decimal? @map("max_longevity_years") @db.Decimal
+  se                              Decimal? @map("SE") @db.Decimal
+  lowCI                           Decimal? @map("low_CI") @db.Decimal
+  highCI                          Decimal? @map("high_CI") @db.Decimal
+
+  ageGroupId Int?      @map("age_group_id")
+  ageGroupRef AgeGroup? @relation(fields: [ageGroupId], references: [id], onDelete: Cascade)
+
+  @@map("survival")
+}
+
+model Fecundity {
+  id                              Int      @id @default(autoincrement())
+  ageGroup                        Int?     @map("age_group")
+  ageGroupConsideredInPublication String?  @map("age_group_considered_in_the_publication") @db.VarChar(255)
+  minFecundityRate                Decimal? @map("min_fecundity_rate") @db.Decimal
+  meanFecundityRate               Decimal? @map("mean_fecundity_rate") @db.Decimal
+  maxFecundityRate                Decimal? @map("max_fecundity_rate") @db.Decimal
+  se                              Decimal? @map("SE") @db.Decimal
+  lowCI                           Decimal? @map("low_CI") @db.Decimal
+  highCI                          Decimal? @map("high_CI") @db.Decimal
+
+  ageGroupId Int?      @map("age_group_id")
+  ageGroupRef AgeGroup? @relation(fields: [ageGroupId], references: [id], onDelete: Cascade)
+
+  @@map("fecundity")
+}
+
+// ============================================
+// AUTRES DONNÉES LIÉES AUX ESPÈCES
+// ============================================
+
+model DispersalDistance {
+  id                    Int      @id @default(autoincrement())
+  meanDispersalDistance Decimal? @map("mean_dispersal_distance") @db.Decimal
+  minDispersalDistance  Decimal? @map("min_dispersal_distance") @db.Decimal
+  maxDispersalDistance  Decimal? @map("max_dispersal_distance") @db.Decimal
+  se                    Decimal? @map("SE") @db.Decimal
+  lowCI                 Decimal? @map("low_CI") @db.Decimal
+  highCI                Decimal? @map("high_CI") @db.Decimal
+
+  speciesId Int      @unique @map("species_id")
+  species   Species  @relation(fields: [speciesId], references: [id], onDelete: Cascade)
+
+  @@map("dispersal_distance")
+}
+
+model EurobatraitData {
+  id                                       Int      @id @default(autoincrement())
+  maxLongevity                             Decimal? @map("MaxLongevity") @db.Decimal
+  litterSize                               Decimal? @map("LitterSize") @db.Decimal
+  gestationTime                            Decimal? @map("GestationTime") @db.Decimal
+  weaning                                  Decimal? @map("Weaning") @db.Decimal
+  sexualMaturityFemale                     Decimal? @map("SexualMaturityFemale") @db.Decimal
+  sexualMaturityMale                       Decimal? @map("SexualMaturityMale") @db.Decimal
+  callDuration                             Decimal? @map("CallDuration") @db.Decimal
+  callMinFrequency                         Decimal? @map("CallMinFrequency") @db.Decimal
+  callPeakFrequency                        Decimal? @map("CallPeakFrequency") @db.Decimal
+  callMaxFrequency                         Decimal? @map("CallMaxFrequency") @db.Decimal
+  interpulseInterval                       Decimal? @map("InterpulseInterval") @db.Decimal
+  callStartFrequency                       Decimal? @map("CallStartFrequency") @db.Decimal
+  callEndFrequency                         Decimal? @map("CallEndFrequency") @db.Decimal
+  callMidFrequency                         Decimal? @map("CallMidFrequency") @db.Decimal
+  callBandwidth                            Decimal? @map("CallBandwidth") @db.Decimal
+  callSlope                                Decimal? @map("CallSlope") @db.Decimal
+  buzzDuration                             Decimal? @map("buzzDuration") @db.Decimal
+  buzzPeakFrequency                        Decimal? @map("buzzPeakFrequency") @db.Decimal
+  rateBuzz                                 Decimal? @map("rateBuzz") @db.Decimal
+  callType                                 String?  @map("CallType") @db.VarChar(255)
+  speciesThermalIndex                      Decimal? @map("SpeciesThermalIndex") @db.Decimal
+  responseToNightlyTemperature             Decimal? @map("ResponseToNightlyTemperature") @db.Decimal
+  responseToNightlyPrecipitation           Decimal? @map("ResponseToNightlyPrecipitation") @db.Decimal
+  responseToNightlyWindSpeed               Decimal? @map("ResponseToNightlyWindSpeed") @db.Decimal
+  altitudinalMigration                     String?  @map("AltitudinalMigration") @db.VarChar(255)
+  estExtentOccurrence                      Decimal? @map("EstExtentOccurrence") @db.Decimal
+  upperElevationLimit                      Decimal? @map("UpperElevationLimit") @db.Decimal
+  islandEndemic                            String?  @map("IslandEndemic") @db.VarChar(255)
+  geographicRange                          Decimal? @map("GeographicRange") @db.Decimal
+  firstMainPreyItem                        String?  @map("FirstMainPreyItem") @db.VarChar(255)
+  secondMainPreyItem                       String?  @map("SecondMainPreyItem") @db.VarChar(255)
+  thirdMainPreyItem                        String?  @map("ThirdMainPreyItem") @db.VarChar(255)
+  dietaryNicheBreadth                      Decimal? @map("DietaryNicheBreadth") @db.Decimal
+  dietaryDiversity                         Decimal? @map("DietaryDiversity") @db.Decimal
+  trophicSpecialization                    Decimal? @map("TrophicSpecialization") @db.Decimal
+  dietType                                 String?  @map("DietType") @db.VarChar(255)
+  speciesHabitatSpecializationIndex        Decimal? @map("SpeciesHabitatSpecializationIndex") @db.Decimal
+  freshwaterAffinitySmallScale             Decimal? @map("FreshwaterAffinitySmallScale") @db.Decimal
+  denseUrbanAreaAffinitySmallScale         Decimal? @map("DenseUrbanAreaAffinitySmallScale") @db.Decimal
+  croplandAffinitySmallScale               Decimal? @map("CroplandAffinitySmallScale") @db.Decimal
+  grasslandAffinitySmallScale              Decimal? @map("GrasslandAffinitySmallScale") @db.Decimal
+  deciduousForestAffinitySmallScale        Decimal? @map("DeciduousForestAffinitySmallScale") @db.Decimal
+  coniferousForestAffinitySmallScale       Decimal? @map("ConiferousForestAffinitySmallScale") @db.Decimal
+  freshwaterAffinityMediumScale            Decimal? @map("FreshwaterAffinityMediumScale") @db.Decimal
+  denseUrbanAreaAffinityMediumScale        Decimal? @map("DenseUrbanAreaAffinityMediumScale") @db.Decimal
+  croplandAffinityMediumScale              Decimal? @map("CroplandAffinityMediumScale") @db.Decimal
+  grasslandAffinityMediumScale             Decimal? @map("GrasslandAffinityMediumScale") @db.Decimal
+  deciduousForestAffinityMediumScale       Decimal? @map("DeciduousForestAffinityMediumScale") @db.Decimal
+  coniferousForestAffinityMediumScale      Decimal? @map("ConiferousForestAffinityMediumScale") @db.Decimal
+  freshwaterAffinityLargeScale             Decimal? @map("FreshwaterAffinityLargeScale") @db.Decimal
+  denseUrbanAreaAffinityLargeScale         Decimal? @map("DenseUrbanAreaAffinityLargeScale") @db.Decimal
+  croplandAffinityLargeScale               Decimal? @map("CroplandAffinityLargeScale") @db.Decimal
+  grasslandAffinityLargeScale              Decimal? @map("GrasslandAffinityLargeScale") @db.Decimal
+  deciduousForestAffinityLargeScale        Decimal? @map("DeciduousForestAffinityLargeScale") @db.Decimal
+  coniferousForestAffinityLargeScale       Decimal? @map("ConiferousForestAffinityLargeScale") @db.Decimal
+  criticalFeedingAreasForest               Boolean? @map("CriticalFeedingAreasForest")
+  criticalFeedingAreasWoodedRiparianHabitat Boolean? @map("CriticalFeedingAreasWoodedRiparianHabitat")
+  criticalFeedingAreasWetland              Boolean? @map("CriticalFeedingAreasWetland")
+  criticalFeedingAreasWaterBodies          Boolean? @map("CriticalFeedingAreasWaterBodies")
+  criticalFeedingAreasGrassland            Boolean? @map("CriticalFeedingAreasGrassland")
+  criticalFeedingAreasHedgerows            Boolean? @map("CriticalFeedingAreasHedgerows")
+  criticalFeedingAreasOrchard              Boolean? @map("CriticalFeedingAreasOrchard")
+  criticalFeedingAreasShrubland            Boolean? @map("CriticalFeedingAreasShrubland")
+  criticalFeedingAreasOpenHabitat          Boolean? @map("CriticalFeedingAreasOpenHabitat")
+  criticalFeedingAreasUrbanParkGarden      Boolean? @map("CriticalFeedingAreasUrbanParKGarden")
+  linage                                   String?  @map("Linage") @db.VarChar(255)
+  nf                                       Decimal? @map("NF") @db.Decimal
+  nfa                                      Decimal? @map("NFa") @db.Decimal
+  karyotype                                String?  @map("Karyotype") @db.VarChar(255)
+  geneticPopulationStructure               String?  @map("GeneticPopulationStructure") @db.VarChar(255)
+  hybridization                            String?  @map("Hybridization") @db.VarChar(255)
+  allelicRichness                          Decimal? @map("AllelicRichness") @db.Decimal
+  genomeSizeGb                             Decimal? @map("GenomeSize_(Gb)") @db.Decimal
+  completeMitochondrialGenomeBp            Decimal? @map("CompleteMitochondrialGenome(bp)") @db.Decimal
+  forearmLength                            Decimal? @map("ForearmLength") @db.Decimal
+  thirdDigitLength                         Decimal? @map("ThirdDigitLength") @db.Decimal
+  fifthDigitLength                         Decimal? @map("FifthDigitLength") @db.Decimal
+  bodyMass                                 Decimal? @map("BodyMass") @db.Decimal
+  cm3                                      Decimal? @map("CM3") @db.Decimal
+  lcblccratio                              Decimal? @map("LCBLCCRatio") @db.Decimal
+  aspectRatioIndex                         Decimal? @map("AspectRatioIndex") @db.Decimal
+  wingLoadingIndex                         Decimal? @map("WingLoadingIndex") @db.Decimal
+  fungi                                    String?  @map("Fungi") @db.VarChar(255)
+  endoparasites                            String?  @map("Endoparasites") @db.VarChar(255)
+  viruses                                  String?  @map("Viruses") @db.VarChar(255)
+  seasonalActivityPatternKurtosis          Decimal? @map("SeasonalActivityPatternKurtosis") @db.Decimal
+  seasonalActivityPatternSkewness          Decimal? @map("SeasonalActivityPatternSkewness") @db.Decimal
+  torporBehavior                           String?  @map("TorporBehavior") @db.VarChar(255)
+  basalMetabolicRate                       Decimal? @map("BasalMetabolicRate") @db.Decimal
+  basalMetabolicRatePerc                   Decimal? @map("BasalMetabolicRatePerc") @db.Decimal
+  digestiveEfficiency                      Decimal? @map("DigestiveEfficiency") @db.Decimal
+  totalEvaporativeWaterLossRate            Decimal? @map("TotalEvaporativeWaterLossRate") @db.Decimal
+  minBodyTemp                              Decimal? @map("MinBodyTemp") @db.Decimal
+  maxTorporBoutDuration                    Decimal? @map("MaxTorporBoutDuration") @db.Decimal
+  meanTorporBoutDuration                   Decimal? @map("MeanTorporBoutDuration") @db.Decimal
+  heartRateTorpor                          Decimal? @map("HeartRateTorpor") @db.Decimal
+  heartRateResting                         Decimal? @map("HeartRateResting") @db.Decimal
+  heartRateFlight                          Decimal? @map("HeartRateFlight") @db.Decimal
+  restingMetabolicRate                     Decimal? @map("RestingMetabolicRate") @db.Decimal
+  firstMainMaternityRoost                  String?  @map("FirstMainMaternityRoost") @db.VarChar(255)
+  secondMainMaternityRoost                 String?  @map("SecondMainMaternityRoost") @db.VarChar(255)
+  thirdMainMaternityRoost                  String?  @map("ThirdMainMaternityRoost") @db.VarChar(255)
+  firstMainHibernationRoost                String?  @map("FirstMainHibernationRoost") @db.VarChar(255)
+  secondMainHibernationRoost               String?  @map("SecondMainHibernationRoost") @db.VarChar(255)
+  thirdMainHibernationRoost                String?  @map("ThirdMainHibernationRoost") @db.VarChar(255)
+  overgroundRoostDependenceCastle          Decimal? @map("OvergroundRoostDependence-Castle") @db.Decimal
+  overgroundRoostDependenceChurch          Decimal? @map("OvergroundRoostDependence-Church") @db.Decimal
+  overgroundRoostDependenceHouse           Decimal? @map("OvergroundRoostDependence-House") @db.Decimal
+  overgroundRoostDependenceBarn            Decimal? @map("OvergroundRoostDependence-Barn") @db.Decimal
+  overgroundRoostDependenceBridge          Decimal? @map("OvergroundRoostDependence-Bridge") @db.Decimal
+  overgroundRoostDependenceTree            Decimal? @map("OvergroundRoostDependence-Tree") @db.Decimal
+  homeRange                                Decimal? @map("HomeRange") @db.Decimal
+  maxNightlyDistance                       Decimal? @map("MaxNightlyDistance") @db.Decimal
+  meanNightlyDistance                      Decimal? @map("MeanNightlyDistance") @db.Decimal
+  propFlightAtHeight                       Decimal? @map("PropFlightAtHeight") @db.Decimal
+  maxRecordedMovement                      Decimal? @map("MaxRecordedMovement") @db.Decimal
+  manoeuvrabilityTurningDiameter           Decimal? @map("ManoeuvrabilityTurningDiameter") @db.Decimal
+  dispersalDistances                       Decimal? @map("DispersalDistances") @db.Decimal
+
+  speciesId Int?     @unique @map("species_id")
+  species   Species? @relation(fields: [speciesId], references: [id], onDelete: SetNull)
+
+  @@map("eurobatrait_data")
+}
+
+model AnageData {
+  id                            Int      @id @default(autoincrement())
+  commonName                    String?  @map("Common_name") @db.VarChar(255)
+  femaleMaturityDays            Decimal? @map("Female_maturity_days") @db.Decimal
+  maleMaturityDays              Decimal? @map("Male_maturity_days") @db.Decimal
+  gestationIncubationDays       Decimal? @map("Gestation_Incubation_days") @db.Decimal
+  weaningDays                   Decimal? @map("Weaning_days") @db.Decimal
+  litterClutchSize              Decimal? @map("Litter_Clutch_size") @db.Decimal
+  littersClutchesPerYear        Decimal? @map("Litters_Clutches_per_year") @db.Decimal
+  interLitterInterbirthInterval Decimal? @map("Inter_litter_Interbirth_interval") @db.Decimal
+  birthWeightG                  Decimal? @map("Birth_weight_g") @db.Decimal
+  weaningWeightG                Decimal? @map("Weaning_weight_g") @db.Decimal
+  adultWeightG                  Decimal? @map("Adult_weight_g") @db.Decimal
+  growthRate1PerDay             Decimal? @map("Growth_rate_1_per_day") @db.Decimal
+  maximumLongevityYrs           Decimal? @map("Maximum_longevity_yrs") @db.Decimal
+  dataQuality                   String?  @map("Data_quality") @db.VarChar(255)
+  imrPerYr                      Decimal? @map("IMR_per_yr") @db.Decimal
+  mrdtYrs                       Decimal? @map("MRDT_yrs") @db.Decimal
+  metabolicRateW                Decimal? @map("Metabolic_rate_W") @db.Decimal
+  bodyMassG                     Decimal? @map("Body_mass_g") @db.Decimal
+  temperatureK                  Decimal? @map("Temperature_K") @db.Decimal
+
+  speciesId Int?     @unique @map("species_id")
+  species   Species? @relation(fields: [speciesId], references: [id], onDelete: SetNull)
+
+  @@map("anage_data")
+}

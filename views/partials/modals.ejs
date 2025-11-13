@@ -1,0 +1,492 @@
+<!-- MODAL SPECIES -->
+<div class="modal fade" id="speciesModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-bug"></i>
+          <span id="speciesModalTitle">Créer une espèce</span>
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="speciesForm">
+          <input type="hidden" id="speciesId">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="speciesFr" class="form-label">Nom français</label>
+              <input type="text" class="form-control" id="speciesFr">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="speciesLat" class="form-label">Nom latin *</label>
+              <input type="text" class="form-control" id="speciesLat" required>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="speciesEn" class="form-label">Nom anglais</label>
+              <input type="text" class="form-control" id="speciesEn">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="family" class="form-label">Famille</label>
+              <input type="text" class="form-control" id="family">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="genus" class="form-label">Genre</label>
+              <input type="text" class="form-control" id="genus">
+            </div>
+            <div class="col-md-3 mb-3">
+              <div class="form-check mt-4">
+                <input class="form-check-input" type="checkbox" id="inFrance">
+                <label class="form-check-label" for="inFrance">En France</label>
+              </div>
+            </div>
+            <div class="col-md-3 mb-3">
+              <div class="form-check mt-4">
+                <input class="form-check-input" type="checkbox" id="inEurope">
+                <label class="form-check-label" for="inEurope">En Europe</label>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-primary" id="saveSpeciesBtn">
+          <i class="bi bi-save"></i> Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL BIBLIOGRAPHY -->
+<div class="modal fade" id="bibliographyModal" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header bg-info text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-book"></i>
+          <span id="bibliographyModalTitle">Créer une bibliographie</span>
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+        <form id="bibliographyForm">
+          <input type="hidden" id="bibliographyId">
+
+          <h6 class="border-bottom pb-2 mb-3">Informations générales</h6>
+          <div class="row">
+            <div class="col-md-12 mb-3">
+              <label for="citation" class="form-label">Citation</label>
+              <textarea class="form-control" id="citation" rows="2"></textarea>
+            </div>
+            <div class="col-md-12 mb-3">
+              <label for="reference" class="form-label">Référence</label>
+              <textarea class="form-control" id="reference" rows="2"></textarea>
+            </div>
+          </div>
+
+          <h6 class="border-bottom pb-2 mb-3 mt-4">Détails de l'étude</h6>
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label for="publicationDate" class="form-label">Date de publication</label>
+              <input type="text" class="form-control" id="publicationDate">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="country" class="form-label">Pays</label>
+              <input type="text" class="form-control" id="country">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="region" class="form-label">Région</label>
+              <input type="text" class="form-control" id="region">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label for="studyDuration" class="form-label">Durée de l'étude</label>
+              <input type="text" class="form-control" id="studyDuration">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="datesOfTheStudy" class="form-label">Dates de l'étude</label>
+              <input type="text" class="form-control" id="datesOfTheStudy">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="season" class="form-label">Saison</label>
+              <input type="text" class="form-control" id="season">
+            </div>
+          </div>
+
+          <h6 class="border-bottom pb-2 mb-3 mt-4">Échantillonnage</h6>
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label for="sampleSize" class="form-label">Taille de l'échantillon</label>
+              <input type="number" step="0.01" class="form-control" id="sampleSize">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="numberMalesSampled" class="form-label">Nombre de mâles</label>
+              <input type="number" step="0.01" class="form-control" id="numberMalesSampled">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="numberFemalesSampled" class="form-label">Nombre de femelles</label>
+              <input type="number" step="0.01" class="form-control" id="numberFemalesSampled">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label for="areaSizeHa" class="form-label">Superficie (ha)</label>
+              <input type="number" step="0.01" class="form-control" id="areaSizeHa">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="meanRecaptureProbability" class="form-label">Prob. recapture (moyenne)</label>
+              <input type="number" step="0.0001" class="form-control" id="meanRecaptureProbability">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="sdMeanRecaptureProbability" class="form-label">Prob. recapture (SD)</label>
+              <input type="number" step="0.0001" class="form-control" id="sdMeanRecaptureProbability">
+            </div>
+          </div>
+
+          <h6 class="border-bottom pb-2 mb-3 mt-4">Méthodologie</h6>
+          <div class="mb-3">
+            <label for="methodologyUsed" class="form-label">Méthodologie utilisée</label>
+            <textarea class="form-control" id="methodologyUsed" rows="2"></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="modelUsed" class="form-label">Modèle utilisé</label>
+            <textarea class="form-control" id="modelUsed" rows="2"></textarea>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="captureMethod" class="form-label">Méthode de capture</label>
+              <textarea class="form-control" id="captureMethod" rows="2"></textarea>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="markingMethod" class="form-label">Méthode de marquage</label>
+              <textarea class="form-control" id="markingMethod" rows="2"></textarea>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="captureFrequency" class="form-label">Fréquence de capture</label>
+            <textarea class="form-control" id="captureFrequency" rows="2"></textarea>
+          </div>
+
+          <h6 class="border-bottom pb-2 mb-3 mt-4">Notes et fiabilité</h6>
+          <div class="mb-3">
+            <label for="biasesAndProblems" class="form-label">Biais et problèmes</label>
+            <textarea class="form-control" id="biasesAndProblems" rows="2"></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="otherNote" class="form-label">Autres notes</label>
+            <textarea class="form-control" id="otherNote" rows="2"></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="reliability" class="form-label">Fiabilité</label>
+            <input type="text" class="form-control" id="reliability">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-primary" id="saveBibliographyBtn">
+          <i class="bi bi-save"></i> Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NUMBER AGE GROUP -->
+<div class="modal fade" id="numberAgeGroupModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-warning">
+        <h5 class="modal-title">
+          <i class="bi bi-list-ol"></i>
+          <span id="numberAgeGroupModalTitle">Créer un nombre de groupes d'âge</span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="numberAgeGroupForm">
+          <input type="hidden" id="numberAgeGroupId">
+          <div class="mb-3">
+            <label for="numberOfAgeGroups" class="form-label">Nombre de groupes d'âge *</label>
+            <input type="number" class="form-control" id="numberOfAgeGroups" required min="1">
+            <div class="form-text">Indiquez combien de groupes d'âge sont utilisés dans cette étude</div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-primary" id="saveNumberAgeGroupBtn">
+          <i class="bi bi-save"></i> Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL AGE GROUP -->
+<div class="modal fade" id="ageGroupModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-secondary text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-people"></i>
+          <span id="ageGroupModalTitle">Créer un groupe d'âge</span>
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="ageGroupForm">
+          <input type="hidden" id="ageGroupId">
+          <div class="mb-3">
+            <label for="ageGroup" class="form-label">Groupe d'âge (numéro)</label>
+            <input type="number" class="form-control" id="ageGroup" min="0">
+            <div class="form-text">Ex: 0, 1, 2, 3...</div>
+          </div>
+          <div class="mb-3">
+            <label for="consideredAs" class="form-label">Considéré comme</label>
+            <input type="text" class="form-control" id="consideredAs" placeholder="Ex: Juvénile, Adulte, etc.">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-primary" id="saveAgeGroupBtn">
+          <i class="bi bi-save"></i> Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SURVIVAL -->
+<div class="modal fade" id="survivalModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-heart-pulse"></i>
+          <span id="survivalModalTitle">Ajouter données de survie</span>
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="survivalForm">
+          <input type="hidden" id="survivalId">
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="survivalAgeGroup" class="form-label">Groupe d'âge</label>
+              <input type="number" class="form-control" id="survivalAgeGroup">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="ageGroupConsideredSurvival" class="form-label">Considéré dans la publication</label>
+              <input type="text" class="form-control" id="ageGroupConsideredSurvival">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="sex" class="form-label">Sexe</label>
+            <select class="form-select" id="sex">
+              <option value="">-- Sélectionner --</option>
+              <option value="Male">Mâle</option>
+              <option value="Female">Femelle</option>
+              <option value="Both">Les deux</option>
+            </select>
+          </div>
+
+          <h6 class="border-bottom pb-2 mb-3">Taux de survie</h6>
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label for="minSurvivalRate" class="form-label">Min</label>
+              <input type="number" step="0.0001" class="form-control" id="minSurvivalRate">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="meanSurvivalRate" class="form-label">Moyenne</label>
+              <input type="number" step="0.0001" class="form-control" id="meanSurvivalRate">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="maxSurvivalRate" class="form-label">Max</label>
+              <input type="number" step="0.0001" class="form-control" id="maxSurvivalRate">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="recaptureProbability" class="form-label">Probabilité de recapture</label>
+            <input type="number" step="0.0001" class="form-control" id="recaptureProbability">
+          </div>
+
+          <h6 class="border-bottom pb-2 mb-3">Longévité (années)</h6>
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label for="minLongevityYears" class="form-label">Min</label>
+              <input type="number" step="0.01" class="form-control" id="minLongevityYears">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="meanLongevityYears" class="form-label">Moyenne</label>
+              <input type="number" step="0.01" class="form-control" id="meanLongevityYears">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="maxLongevityYears" class="form-label">Max</label>
+              <input type="number" step="0.01" class="form-control" id="maxLongevityYears">
+            </div>
+          </div>
+
+          <h6 class="border-bottom pb-2 mb-3">Intervalles de confiance</h6>
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label for="survivalSE" class="form-label">SE</label>
+              <input type="number" step="0.0001" class="form-control" id="survivalSE">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="survivalLowCI" class="form-label">Low CI</label>
+              <input type="number" step="0.0001" class="form-control" id="survivalLowCI">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="survivalHighCI" class="form-label">High CI</label>
+              <input type="number" step="0.0001" class="form-control" id="survivalHighCI">
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-success" id="saveSurvivalBtn">
+          <i class="bi bi-save"></i> Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FECUNDITY -->
+<div class="modal fade" id="fecundityModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-egg"></i>
+          <span id="fecundityModalTitle">Ajouter données de fécondité</span>
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="fecundityForm">
+          <input type="hidden" id="fecundityId">
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="fecundityAgeGroup" class="form-label">Groupe d'âge</label>
+              <input type="number" class="form-control" id="fecundityAgeGroup">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="ageGroupConsideredFecundity" class="form-label">Considéré dans la publication</label>
+              <input type="text" class="form-control" id="ageGroupConsideredFecundity">
+            </div>
+          </div>
+
+          <h6 class="border-bottom pb-2 mb-3">Taux de fécondité</h6>
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label for="minFecundityRate" class="form-label">Min</label>
+              <input type="number" step="0.0001" class="form-control" id="minFecundityRate">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="meanFecundityRate" class="form-label">Moyenne</label>
+              <input type="number" step="0.0001" class="form-control" id="meanFecundityRate">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="maxFecundityRate" class="form-label">Max</label>
+              <input type="number" step="0.0001" class="form-control" id="maxFecundityRate">
+            </div>
+          </div>
+
+          <h6 class="border-bottom pb-2 mb-3">Intervalles de confiance</h6>
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label for="fecunditySE" class="form-label">SE</label>
+              <input type="number" step="0.0001" class="form-control" id="fecunditySE">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="fecundityLowCI" class="form-label">Low CI</label>
+              <input type="number" step="0.0001" class="form-control" id="fecundityLowCI">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="fecundityHighCI" class="form-label">High CI</label>
+              <input type="number" step="0.0001" class="form-control" id="fecundityHighCI">
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-danger" id="saveFecundityBtn">
+          <i class="bi bi-save"></i> Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DISPERSAL DISTANCE -->
+<div class="modal fade" id="dispersalModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-arrows-move"></i>
+          Distance de dispersion
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="dispersalForm">
+          <input type="hidden" id="dispersalId">
+
+          <h6 class="border-bottom pb-2 mb-3">Distance de dispersion (mètres)</h6>
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label for="minDispersalDistance" class="form-label">Min</label>
+              <input type="number" step="0.01" class="form-control" id="minDispersalDistance">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="meanDispersalDistance" class="form-label">Moyenne</label>
+              <input type="number" step="0.01" class="form-control" id="meanDispersalDistance">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="maxDispersalDistance" class="form-label">Max</label>
+              <input type="number" step="0.01" class="form-control" id="maxDispersalDistance">
+            </div>
+          </div>
+
+          <h6 class="border-bottom pb-2 mb-3">Intervalles de confiance</h6>
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label for="dispersalSE" class="form-label">SE</label>
+              <input type="number" step="0.01" class="form-control" id="dispersalSE">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="dispersalLowCI" class="form-label">Low CI</label>
+              <input type="number" step="0.01" class="form-control" id="dispersalLowCI">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="dispersalHighCI" class="form-label">High CI</label>
+              <input type="number" step="0.01" class="form-control" id="dispersalHighCI">
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-dark" id="saveDispersalBtn">
+          <i class="bi bi-save"></i> Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
