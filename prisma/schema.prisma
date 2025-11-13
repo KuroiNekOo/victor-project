@@ -26,10 +26,7 @@ model Species {
   inFrance    Boolean? @map("in_france")
   inEurope    Boolean? @map("in_europe")
 
-  dispersalDistance DispersalDistance?
   biliographies  BibliographySpecies[]
-
-  numberAgeGroups      NumberAgeGroup[]
   eurobatraitData      EurobatraitData?
   anageData            AnageData?
 
@@ -61,20 +58,27 @@ model Bibliography {
   otherNote                   String?  @map("other_note") @db.Text
   reliability                 String?  @db.VarChar(255)
 
-  species        BibliographySpecies[]
+  species             BibliographySpecies[]
 
   @@map("bibliography")
 }
 
 // Table d'association many-to-many entre Bibliography et Species
+// MAINTENANT elle contient aussi les données démographiques spécifiques à la combinaison Bibliography+Species
 model BibliographySpecies {
   id             Int      @id @default(autoincrement())
-  bibliographyId Int
-  speciesId      Int
+  bibliographyId Int      @map("bibliography_id")
+  speciesId      Int      @map("species_id")
 
   bibliography   Bibliography @relation(fields: [bibliographyId], references: [id], onDelete: Cascade)
   species        Species      @relation(fields: [speciesId], references: [id], onDelete: Cascade)
 
+  // Données démographiques spécifiques à cette combinaison Bibliography+Species
+  numberAgeGroup      NumberAgeGroup?
+  ageGroups           AgeGroup[]
+  dispersalDistances  DispersalDistance[]
+
+  @@unique([bibliographyId, speciesId])
   @@map("bibliography_species")
 }
 
@@ -85,20 +89,19 @@ model BibliographySpecies {
 model NumberAgeGroup {
   id                Int     @id @default(autoincrement())
   numberOfAgeGroups Int?    @map("number_of_age_groups")
-  
+
   /*
   Lecture correcte :
-  👉 Quand Species (parent) est supprimé
+  👉 Quand BibliographySpecies (parent) est supprimé
   👉 Alors NumberAgeGroup (enfant) est supprimé en cascade
+  👉 Une combinaison BibliographySpecies ne peut avoir qu'UN SEUL NumberAgeGroup (one-to-one)
 
   PAS dans l'autre sens :
   ❌ Quand NumberAgeGroup est supprimé
-  ❌ Species reste intact
+  ❌ BibliographySpecies reste intact
   */
-  speciesId Int?     @map("species_id")
-  species   Species? @relation(fields: [speciesId], references: [id], onDelete: Cascade)
-
-  ageGroups AgeGroup[]
+  bibliographySpeciesId Int?                  @unique @map("bibliography_species_id")
+  bibliographySpecies   BibliographySpecies? @relation(fields: [bibliographySpeciesId], references: [id], onDelete: Cascade)
 
   @@map("number_age_groups")
 }
@@ -107,9 +110,13 @@ model AgeGroup {
   id           Int     @id @default(autoincrement())
   ageGroup     Int?    @map("age_group")
   consideredAs String? @map("considered_as") @db.VarChar(255)
-  
-  numberAgeGroupId Int?            @map("number_age_group_id")
-  numberAgeGroup   NumberAgeGroup? @relation(fields: [numberAgeGroupId], references: [id], onDelete: Cascade)
+
+  /*
+  Lié à BibliographySpecies
+  Permet de créer des AgeGroup pour une combinaison Bibliography+Species
+  */
+  bibliographySpeciesId Int?                  @map("bibliography_species_id")
+  bibliographySpecies   BibliographySpecies? @relation(fields: [bibliographySpeciesId], references: [id], onDelete: Cascade)
 
   survivals   Survival[]
   fecundities Fecundity[]
@@ -169,8 +176,12 @@ model DispersalDistance {
   lowCI                 Decimal? @map("low_CI") @db.Decimal
   highCI                Decimal? @map("high_CI") @db.Decimal
 
-  speciesId Int      @unique @map("species_id")
-  species   Species  @relation(fields: [speciesId], references: [id], onDelete: Cascade)
+  /*
+  Lié à BibliographySpecies
+  Chaque combinaison Bibliography+Species peut avoir des dispersal distances
+  */
+  bibliographySpeciesId Int?                  @map("bibliography_species_id")
+  bibliographySpecies   BibliographySpecies? @relation(fields: [bibliographySpeciesId], references: [id], onDelete: Cascade)
 
   @@map("dispersal_distance")
 }

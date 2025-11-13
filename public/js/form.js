@@ -33,6 +33,19 @@ async function loadSpecies() {
   });
 }
 
+async function loadSpeciesForBibliography() {
+  const species = await mockAPI.getSpecies();
+  const select = document.getElementById('bibliographySpeciesSelect');
+
+  select.innerHTML = '';
+  species.forEach(s => {
+    const option = document.createElement('option');
+    option.value = s.id;
+    option.textContent = `${s.speciesFr || s.speciesLat} (${s.speciesLat})`;
+    select.appendChild(option);
+  });
+}
+
 async function loadBibliographies(speciesId) {
   const bibliographies = await mockAPI.getBibliographiesBySpecies(speciesId);
   const select = document.getElementById('bibliographySelect');
@@ -49,24 +62,36 @@ async function loadBibliographies(speciesId) {
   document.getElementById('bibliographyCard').style.display = 'block';
 }
 
-async function loadNumberAgeGroups(speciesId) {
-  const groups = await mockAPI.getNumberAgeGroupsBySpecies(speciesId);
-  const select = document.getElementById('numberAgeGroupSelect');
+async function loadNumberAgeGroups(bibliographyId, speciesId) {
+  const group = await mockAPI.getNumberAgeGroupByBibliographySpecies(bibliographyId, speciesId);
+  const input = document.getElementById('numberAgeGroupInput');
+  const hiddenId = document.getElementById('numberAgeGroupId');
+  const createBtn = document.getElementById('createNumberAgeGroupBtn');
+  const editBtn = document.getElementById('editNumberAgeGroupBtn');
 
-  select.innerHTML = '<option value="">-- Choisir --</option>';
-  groups.forEach(g => {
-    const option = document.createElement('option');
-    option.value = g.id;
-    option.textContent = `${g.numberOfAgeGroups} groupe(s) d'âge`;
-    select.appendChild(option);
-  });
+  if (group) {
+    // Un NumberAgeGroup existe : afficher la valeur et le bouton modifier
+    input.value = group.numberOfAgeGroups || '';
+    hiddenId.value = group.id;
+    formState.selectedNumberAgeGroupId = group.id;
+    createBtn.style.display = 'none';
+    editBtn.style.display = 'block';
+  } else {
+    // Aucun NumberAgeGroup : afficher le bouton créer
+    input.value = '';
+    input.placeholder = 'Non défini';
+    hiddenId.value = '';
+    formState.selectedNumberAgeGroupId = null;
+    createBtn.style.display = 'block';
+    editBtn.style.display = 'none';
+  }
 
   // Afficher la carte numberAgeGroup
   document.getElementById('numberAgeGroupCard').style.display = 'block';
 }
 
-async function loadAgeGroups(numberAgeGroupId) {
-  const groups = await mockAPI.getAgeGroupsByNumberAgeGroup(numberAgeGroupId);
+async function loadAgeGroups(bibliographyId, speciesId) {
+  const groups = await mockAPI.getAgeGroupsByBibliographySpecies(bibliographyId, speciesId);
   const select = document.getElementById('ageGroupSelect');
 
   select.innerHTML = '<option value="">-- Choisir un groupe d\'âge --</option>';
@@ -149,20 +174,26 @@ async function loadFecundityData(ageGroupId) {
   document.getElementById('fecundityCard').style.display = 'block';
 }
 
-async function loadDispersalData(speciesId) {
-  const dispersal = await mockAPI.getDispersalBySpecies(speciesId);
+async function loadDispersalData(bibliographyId, speciesId) {
+  const dispersals = await mockAPI.getDispersalsByBibliographySpecies(bibliographyId, speciesId);
   const infoContainer = document.getElementById('dispersalInfo');
 
-  if (!dispersal) {
+  if (!dispersals || dispersals.length === 0) {
     infoContainer.className = 'alert alert-info';
     infoContainer.innerHTML = 'Aucune donnée de dispersion enregistrée';
   } else {
     infoContainer.className = 'alert alert-success';
-    infoContainer.innerHTML = `
-      <h6>Distance de dispersion</h6>
-      <p class="mb-1"><strong>Moyenne:</strong> ${dispersal.meanDispersalDistance || 'N/A'} m</p>
-      <p class="mb-0"><strong>Min - Max:</strong> ${dispersal.minDispersalDistance || 'N/A'} - ${dispersal.maxDispersalDistance || 'N/A'} m</p>
-    `;
+    infoContainer.innerHTML = '';
+    dispersals.forEach(dispersal => {
+      const div = document.createElement('div');
+      div.className = 'mb-3';
+      div.innerHTML = `
+        <h6>Distance de dispersion</h6>
+        <p class="mb-1"><strong>Moyenne:</strong> ${dispersal.meanDispersalDistance || 'N/A'} m</p>
+        <p class="mb-0"><strong>Min - Max:</strong> ${dispersal.minDispersalDistance || 'N/A'} - ${dispersal.maxDispersalDistance || 'N/A'} m</p>
+      `;
+      infoContainer.appendChild(div);
+    });
   }
 
   // Afficher la carte dispersal
@@ -181,36 +212,55 @@ function setupEventListeners() {
 
     if (e.target.value) {
       await loadBibliographies(e.target.value);
-      await loadNumberAgeGroups(e.target.value);
-      await loadDispersalData(e.target.value);
 
-      // Reset les sélections suivantes
-      resetBibliographySelection();
+      // Reset TOUS les blocs suivants (2, 3, 4, 5, 6, 7)
+      // Réinitialiser la sélection de Bibliography à default
+      document.getElementById('bibliographySelect').value = '';
+      formState.selectedBibliographyId = null;
+      document.getElementById('editBibliographyBtn').disabled = true;
+
+      // Cacher et réinitialiser tous les blocs suivants
+      document.getElementById('numberAgeGroupCard').style.display = 'none';
+      document.getElementById('ageGroupCard').style.display = 'none';
+      document.getElementById('dispersalCard').style.display = 'none';
+      hideDataCards();
       resetNumberAgeGroupSelection();
+      resetAgeGroupSelection();
     } else {
       hideAllCards();
     }
   });
 
   // Bibliography selection
-  document.getElementById('bibliographySelect').addEventListener('change', (e) => {
+  document.getElementById('bibliographySelect').addEventListener('change', async (e) => {
     formState.selectedBibliographyId = e.target.value;
     document.getElementById('editBibliographyBtn').disabled = !e.target.value;
-  });
 
-  // NumberAgeGroup selection
-  document.getElementById('numberAgeGroupSelect').addEventListener('change', async (e) => {
-    formState.selectedNumberAgeGroupId = e.target.value;
-    document.getElementById('editNumberAgeGroupBtn').disabled = !e.target.value;
+    if (e.target.value && formState.selectedSpeciesId) {
+      // Charger les blocs 3, 4 et 7 avec les nouvelles données
+      await loadNumberAgeGroups(e.target.value, formState.selectedSpeciesId);
+      await loadAgeGroups(e.target.value, formState.selectedSpeciesId);
+      await loadDispersalData(e.target.value, formState.selectedSpeciesId);
 
-    if (e.target.value) {
-      await loadAgeGroups(e.target.value);
-      resetAgeGroupSelection();
-    } else {
-      document.getElementById('ageGroupCard').style.display = 'none';
+      // Reset la sélection AgeGroup à default (bloc 4)
+      document.getElementById('ageGroupSelect').value = '';
+      formState.selectedAgeGroupId = null;
+      document.getElementById('editAgeGroupBtn').disabled = true;
+
+      // Cacher les blocs 5 et 6 (Survival et Fecundity) car aucun AgeGroup n'est sélectionné
       hideDataCards();
+    } else {
+      // Si aucune bibliography n'est sélectionnée, cacher tous les blocs suivants
+      document.getElementById('numberAgeGroupCard').style.display = 'none';
+      document.getElementById('ageGroupCard').style.display = 'none';
+      document.getElementById('dispersalCard').style.display = 'none';
+      hideDataCards();
+      resetNumberAgeGroupSelection();
+      resetAgeGroupSelection();
     }
   });
+
+  // NumberAgeGroup : plus besoin d'event listener car c'est un input readonly
 
   // AgeGroup selection
   document.getElementById('ageGroupSelect').addEventListener('change', async (e) => {
@@ -255,6 +305,9 @@ function setupEventListeners() {
     document.getElementById('bibliographyModalTitle').textContent =
       action === 'create' ? 'Créer une bibliographie' : 'Modifier la bibliographie';
 
+    // Charger toutes les espèces dans le multi-select
+    await loadSpeciesForBibliography();
+
     if (action === 'edit' && formState.selectedBibliographyId) {
       const bib = await mockAPI.getBibliographyById(formState.selectedBibliographyId);
       if (bib) {
@@ -262,6 +315,14 @@ function setupEventListeners() {
       }
     } else {
       clearBibliographyForm();
+      // Pré-sélectionner l'espèce courante pour la création
+      if (formState.selectedSpeciesId) {
+        const select = document.getElementById('bibliographySpeciesSelect');
+        const option = select.querySelector(`option[value="${formState.selectedSpeciesId}"]`);
+        if (option) {
+          option.selected = true;
+        }
+      }
     }
   });
 
@@ -337,11 +398,12 @@ function setupEventListeners() {
 
   // Modal Dispersal
   document.getElementById('dispersalModal').addEventListener('show.bs.modal', async () => {
-    if (formState.selectedSpeciesId) {
-      const dispersal = await mockAPI.getDispersalBySpecies(formState.selectedSpeciesId);
-      if (dispersal) {
-        fillDispersalForm(dispersal);
-        formState.editingId = dispersal.id;
+    if (formState.selectedBibliographyId && formState.selectedSpeciesId) {
+      const dispersals = await mockAPI.getDispersalsByBibliographySpecies(formState.selectedBibliographyId, formState.selectedSpeciesId);
+      if (dispersals && dispersals.length > 0) {
+        // Prendre le premier dispersal (ou gérer plusieurs si nécessaire)
+        fillDispersalForm(dispersals[0]);
+        formState.editingId = dispersals[0].id;
       } else {
         clearDispersalForm();
         formState.editingId = null;
@@ -395,15 +457,34 @@ async function saveSpecies() {
   formState.selectedSpeciesId = result.id;
   document.getElementById('editSpeciesBtn').disabled = false;
 
-  // Recharger les bibliographies si modification
-  if (formState.currentAction === 'edit') {
-    await loadBibliographies(result.id);
-  }
+  // Charger les bibliographies (que ce soit création ou modification)
+  await loadBibliographies(result.id);
+
+  // Reset les blocs suivants
+  document.getElementById('bibliographySelect').value = '';
+  formState.selectedBibliographyId = null;
+  document.getElementById('editBibliographyBtn').disabled = true;
+  document.getElementById('numberAgeGroupCard').style.display = 'none';
+  document.getElementById('ageGroupCard').style.display = 'none';
+  document.getElementById('dispersalCard').style.display = 'none';
+  hideDataCards();
+  resetNumberAgeGroupSelection();
+  resetAgeGroupSelection();
 }
 
 async function saveBibliography() {
+  // Récupérer les espèces sélectionnées
+  const speciesSelect = document.getElementById('bibliographySpeciesSelect');
+  const selectedOptions = Array.from(speciesSelect.selectedOptions);
+  const speciesIds = selectedOptions.map(option => parseInt(option.value));
+
+  if (speciesIds.length === 0) {
+    alert('Veuillez sélectionner au moins une espèce');
+    return;
+  }
+
   const data = {
-    speciesId: parseInt(formState.selectedSpeciesId),
+    speciesIds: speciesIds,
     citation: document.getElementById('citation').value || null,
     reference: document.getElementById('reference').value || null,
     publicationDate: document.getElementById('publicationDate').value || null,
@@ -439,21 +520,70 @@ async function saveBibliography() {
   modal.hide();
 
   await loadBibliographies(formState.selectedSpeciesId);
-  document.getElementById('bibliographySelect').value = result.id;
-  formState.selectedBibliographyId = result.id;
-  document.getElementById('editBibliographyBtn').disabled = false;
+
+  // Vérifier si la bibliography modifiée est toujours liée à l'espèce courante
+  const bibliographySelect = document.getElementById('bibliographySelect');
+  const stillInList = Array.from(bibliographySelect.options).some(option => option.value === result.id.toString());
+
+  if (stillInList) {
+    // La bibliography est toujours liée : la sélectionner
+    bibliographySelect.value = result.id;
+    formState.selectedBibliographyId = result.id;
+    document.getElementById('editBibliographyBtn').disabled = false;
+
+    // Charger automatiquement les blocs suivants (3, 4, 7)
+    await loadNumberAgeGroups(result.id, formState.selectedSpeciesId);
+    await loadAgeGroups(result.id, formState.selectedSpeciesId);
+    await loadDispersalData(result.id, formState.selectedSpeciesId);
+
+    // Reset la sélection AgeGroup à default (bloc 4)
+    document.getElementById('ageGroupSelect').value = '';
+    formState.selectedAgeGroupId = null;
+    document.getElementById('editAgeGroupBtn').disabled = true;
+
+    // Cacher les blocs 5 et 6 (Survival et Fecundity) car aucun AgeGroup n'est sélectionné
+    hideDataCards();
+  } else {
+    // La bibliography n'est plus liée à l'espèce courante : réinitialiser tout
+    bibliographySelect.value = '';
+    formState.selectedBibliographyId = null;
+    document.getElementById('editBibliographyBtn').disabled = true;
+
+    // Cacher tous les blocs suivants
+    document.getElementById('numberAgeGroupCard').style.display = 'none';
+    document.getElementById('ageGroupCard').style.display = 'none';
+    document.getElementById('dispersalCard').style.display = 'none';
+    hideDataCards();
+
+    // Réinitialiser les états
+    resetNumberAgeGroupSelection();
+    resetAgeGroupSelection();
+  }
 }
 
 async function saveNumberAgeGroup() {
-  const data = {
-    speciesId: parseInt(formState.selectedSpeciesId),
-    numberOfAgeGroups: parseInt(document.getElementById('numberOfAgeGroups').value)
-  };
+  const numberOfAgeGroups = parseInt(document.getElementById('numberOfAgeGroups').value);
 
-  if (!data.numberOfAgeGroups || data.numberOfAgeGroups < 1) {
+  if (!numberOfAgeGroups || numberOfAgeGroups < 1) {
     alert('Le nombre de groupes d\'âge doit être au moins 1');
     return;
   }
+
+  // Récupérer le bibliographySpeciesId
+  const bibliographySpeciesId = await mockAPI.getBibliographySpeciesId(
+    formState.selectedBibliographyId,
+    formState.selectedSpeciesId
+  );
+
+  if (!bibliographySpeciesId) {
+    alert('Erreur: impossible de trouver la relation Bibliography-Species');
+    return;
+  }
+
+  const data = {
+    bibliographySpeciesId: parseInt(bibliographySpeciesId),
+    numberOfAgeGroups: numberOfAgeGroups
+  };
 
   let result;
   if (formState.currentAction === 'create') {
@@ -465,15 +595,27 @@ async function saveNumberAgeGroup() {
   const modal = bootstrap.Modal.getInstance(document.getElementById('numberAgeGroupModal'));
   modal.hide();
 
-  await loadNumberAgeGroups(formState.selectedSpeciesId);
-  document.getElementById('numberAgeGroupSelect').value = result.id;
-  formState.selectedNumberAgeGroupId = result.id;
-  document.getElementById('editNumberAgeGroupBtn').disabled = false;
+  // Recharger et afficher le NumberAgeGroup mis à jour
+  await loadNumberAgeGroups(formState.selectedBibliographyId, formState.selectedSpeciesId);
+
+  // Pas besoin de recharger les blocs suivants car NumberAgeGroup est juste un affichage
+  // Les AgeGroups ne dépendent pas de NumberAgeGroup
 }
 
 async function saveAgeGroup() {
+  // Récupérer le bibliographySpeciesId
+  const bibliographySpeciesId = await mockAPI.getBibliographySpeciesId(
+    formState.selectedBibliographyId,
+    formState.selectedSpeciesId
+  );
+
+  if (!bibliographySpeciesId) {
+    alert('Erreur: impossible de trouver la relation Bibliography-Species');
+    return;
+  }
+
   const data = {
-    numberAgeGroupId: parseInt(formState.selectedNumberAgeGroupId),
+    bibliographySpeciesId: parseInt(bibliographySpeciesId),
     ageGroup: parseInt(document.getElementById('ageGroup').value) || null,
     consideredAs: document.getElementById('consideredAs').value || null
   };
@@ -488,16 +630,14 @@ async function saveAgeGroup() {
   const modal = bootstrap.Modal.getInstance(document.getElementById('ageGroupModal'));
   modal.hide();
 
-  await loadAgeGroups(formState.selectedNumberAgeGroupId);
+  await loadAgeGroups(formState.selectedBibliographyId, formState.selectedSpeciesId);
   document.getElementById('ageGroupSelect').value = result.id;
   formState.selectedAgeGroupId = result.id;
   document.getElementById('editAgeGroupBtn').disabled = false;
 
-  // Recharger les données si modification
-  if (formState.currentAction === 'edit') {
-    await loadSurvivalData(result.id);
-    await loadFecundityData(result.id);
-  }
+  // Charger les blocs suivants (Survival et Fecundity) automatiquement
+  await loadSurvivalData(result.id);
+  await loadFecundityData(result.id);
 }
 
 async function saveSurvival() {
@@ -556,14 +696,30 @@ async function saveFecundity() {
 }
 
 async function saveDispersal() {
+  const getValue = (id) => {
+    const val = document.getElementById(id).value;
+    return val === '' ? null : parseFloat(val);
+  };
+
+  // Récupérer le bibliographySpeciesId
+  const bibliographySpeciesId = await mockAPI.getBibliographySpeciesId(
+    formState.selectedBibliographyId,
+    formState.selectedSpeciesId
+  );
+
+  if (!bibliographySpeciesId) {
+    alert('Erreur: impossible de trouver la relation Bibliography-Species');
+    return;
+  }
+
   const data = {
-    speciesId: parseInt(formState.selectedSpeciesId),
-    meanDispersalDistance: parseFloat(document.getElementById('meanDispersalDistance').value) || null,
-    minDispersalDistance: parseFloat(document.getElementById('minDispersalDistance').value) || null,
-    maxDispersalDistance: parseFloat(document.getElementById('maxDispersalDistance').value) || null,
-    se: parseFloat(document.getElementById('dispersalSE').value) || null,
-    lowCI: parseFloat(document.getElementById('dispersalLowCI').value) || null,
-    highCI: parseFloat(document.getElementById('dispersalHighCI').value) || null
+    bibliographySpeciesId: parseInt(bibliographySpeciesId),
+    meanDispersalDistance: getValue('meanDispersalDistance'),
+    minDispersalDistance: getValue('minDispersalDistance'),
+    maxDispersalDistance: getValue('maxDispersalDistance'),
+    se: getValue('dispersalSE'),
+    lowCI: getValue('dispersalLowCI'),
+    highCI: getValue('dispersalHighCI')
   };
 
   if (formState.editingId) {
@@ -575,7 +731,7 @@ async function saveDispersal() {
   const modal = bootstrap.Modal.getInstance(document.getElementById('dispersalModal'));
   modal.hide();
 
-  await loadDispersalData(formState.selectedSpeciesId);
+  await loadDispersalData(formState.selectedBibliographyId, formState.selectedSpeciesId);
 }
 
 // ============================================
@@ -673,6 +829,15 @@ function fillBibliographyForm(bib) {
   document.getElementById('biasesAndProblems').value = bib.biasesAndProblems || '';
   document.getElementById('otherNote').value = bib.otherNote || '';
   document.getElementById('reliability').value = bib.reliability || '';
+
+  // Pré-sélectionner les espèces liées
+  const speciesSelect = document.getElementById('bibliographySpeciesSelect');
+  if (bib.species && Array.isArray(bib.species)) {
+    const speciesIds = bib.species.map(s => s.speciesId.toString());
+    Array.from(speciesSelect.options).forEach(option => {
+      option.selected = speciesIds.includes(option.value);
+    });
+  }
 }
 
 function fillNumberAgeGroupForm(group) {
@@ -775,11 +940,11 @@ function resetBibliographySelection() {
 }
 
 function resetNumberAgeGroupSelection() {
-  document.getElementById('numberAgeGroupSelect').value = '';
+  document.getElementById('numberAgeGroupInput').value = '';
+  document.getElementById('numberAgeGroupId').value = '';
   formState.selectedNumberAgeGroupId = null;
-  document.getElementById('editNumberAgeGroupBtn').disabled = true;
-  document.getElementById('ageGroupCard').style.display = 'none';
-  resetAgeGroupSelection();
+  document.getElementById('createNumberAgeGroupBtn').style.display = 'block';
+  document.getElementById('editNumberAgeGroupBtn').style.display = 'none';
 }
 
 function resetAgeGroupSelection() {

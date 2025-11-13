@@ -34,6 +34,22 @@ export const bibliographyController = {
     }
   },
 
+  async getBibliographySpeciesId(req, res) {
+    try {
+      const { bibliographyId, speciesId } = req.query;
+
+      if (!bibliographyId || !speciesId) {
+        return res.status(400).json({ error: 'bibliographyId and speciesId are required' });
+      }
+
+      const bibliographySpeciesId = await bibliographyService.getBibliographySpeciesId(bibliographyId, speciesId);
+      res.json({ bibliographySpeciesId });
+    } catch (error) {
+      console.error('Error fetching bibliography species ID:', error);
+      res.status(500).json({ error: 'Failed to fetch bibliography species ID' });
+    }
+  },
+
   async create(req, res) {
     try {
       const bibliography = await bibliographyService.create(req.body);

@@ -77,6 +77,14 @@
         <form id="bibliographyForm">
           <input type="hidden" id="bibliographyId">
 
+          <div class="mb-3">
+            <label for="bibliographySpeciesSelect" class="form-label">Espèces liées *</label>
+            <select class="form-select" id="bibliographySpeciesSelect" multiple size="5" required>
+              <!-- Les espèces seront chargées dynamiquement -->
+            </select>
+            <div class="form-text">Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs espèces</div>
+          </div>
+
           <h6 class="border-bottom pb-2 mb-3">Informations générales</h6>
           <div class="row">
             <div class="col-md-12 mb-3">

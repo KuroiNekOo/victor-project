@@ -1,4 +1,5 @@
 import { dispersalService } from '../services/dispersalService.js';
+import { bibliographyService } from '../services/bibliographyService.js';
 
 export const dispersalController = {
   async getAll(req, res) {
@@ -24,16 +25,26 @@ export const dispersalController = {
     }
   },
 
-  async getBySpeciesId(req, res) {
+  async getByBibliographySpecies(req, res) {
     try {
-      const dispersal = await dispersalService.getBySpeciesId(req.params.speciesId);
-      if (!dispersal) {
-        return res.status(404).json({ error: 'Dispersal not found' });
+      const { bibliographyId, speciesId } = req.query;
+
+      if (!bibliographyId || !speciesId) {
+        return res.status(400).json({ error: 'bibliographyId and speciesId are required' });
       }
-      res.json(dispersal);
+
+      // Récupérer l'ID de BibliographySpecies
+      const bibliographySpeciesId = await bibliographyService.getBibliographySpeciesId(bibliographyId, speciesId);
+
+      if (!bibliographySpeciesId) {
+        return res.json([]); // Pas de relation, donc pas de dispersals
+      }
+
+      const dispersals = await dispersalService.getByBibliographySpeciesId(bibliographySpeciesId);
+      res.json(dispersals);
     } catch (error) {
-      console.error('Error fetching dispersal by species:', error);
-      res.status(500).json({ error: 'Failed to fetch dispersal' });
+      console.error('Error fetching dispersals by bibliography species:', error);
+      res.status(500).json({ error: 'Failed to fetch dispersals' });
     }
   },
 

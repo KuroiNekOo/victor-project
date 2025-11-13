@@ -4,8 +4,12 @@ export const numberAgeGroupService = {
   async getAll() {
     return await prisma.numberAgeGroup.findMany({
       include: {
-        species: true,
-        ageGroups: true
+        bibliographySpecies: {
+          include: {
+            bibliography: true,
+            species: true
+          }
+        }
       }
     });
   },
@@ -14,23 +18,20 @@ export const numberAgeGroupService = {
     return await prisma.numberAgeGroup.findUnique({
       where: { id: parseInt(id) },
       include: {
-        species: true,
-        ageGroups: {
+        bibliographySpecies: {
           include: {
-            survivals: true,
-            fecundities: true
+            bibliography: true,
+            species: true
           }
         }
       }
     });
   },
 
-  async getBySpeciesId(speciesId) {
-    return await prisma.numberAgeGroup.findMany({
-      where: { speciesId: parseInt(speciesId) },
-      include: {
-        ageGroups: true
-      }
+  async getByBibliographySpeciesId(bibliographySpeciesId) {
+    // One-to-one relation : retourne UN SEUL NumberAgeGroup (ou null)
+    return await prisma.numberAgeGroup.findUnique({
+      where: { bibliographySpeciesId: parseInt(bibliographySpeciesId) }
     });
   },
 
@@ -38,7 +39,7 @@ export const numberAgeGroupService = {
     return await prisma.numberAgeGroup.create({
       data: {
         numberOfAgeGroups: data.numberOfAgeGroups,
-        speciesId: data.speciesId ? parseInt(data.speciesId) : null
+        bibliographySpeciesId: data.bibliographySpeciesId ? parseInt(data.bibliographySpeciesId) : null
       }
     });
   },
@@ -48,7 +49,7 @@ export const numberAgeGroupService = {
       where: { id: parseInt(id) },
       data: {
         numberOfAgeGroups: data.numberOfAgeGroups,
-        speciesId: data.speciesId ? parseInt(data.speciesId) : null
+        bibliographySpeciesId: data.bibliographySpeciesId ? parseInt(data.bibliographySpeciesId) : null
       }
     });
   },

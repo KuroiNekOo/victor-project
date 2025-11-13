@@ -412,6 +412,12 @@ textarea.form-control {
   margin-bottom: 0.25rem;
 }
 
+/* Icônes dans les listes de survie et fécondité */
+.btn-group-vertical .btn i,
+.list-group-item .btn i {
+  margin: 0 !important;
+}
+
 /* List Groups */
 .list-group-item {
   background: var(--bg-main);

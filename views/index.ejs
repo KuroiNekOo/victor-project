@@ -95,21 +95,18 @@
         <div class="card-body">
           <div class="row align-items-end">
             <div class="col-md-10">
-              <label for="numberAgeGroupSelect" class="form-label">Sélectionner le nombre de groupes d'âge</label>
-              <select class="form-select" id="numberAgeGroupSelect" required>
-                <option value="">-- Choisir --</option>
-              </select>
+              <label for="numberAgeGroupInput" class="form-label">Nombre de groupes d'âge</label>
+              <input type="number" class="form-control" id="numberAgeGroupInput" readonly placeholder="Non défini">
+              <input type="hidden" id="numberAgeGroupId">
             </div>
-            <div class="col-md-2">
-              <button type="button" class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#numberAgeGroupModal" data-action="create">
+            <div class="col-md-2 d-flex gap-2">
+              <button type="button" class="btn btn-success w-100" id="createNumberAgeGroupBtn" data-bs-toggle="modal" data-bs-target="#numberAgeGroupModal" data-action="create">
                 <i class="bi bi-plus-circle"></i> Créer
               </button>
+              <button type="button" class="btn btn-outline-secondary w-100" id="editNumberAgeGroupBtn" style="display: none;" data-bs-toggle="modal" data-bs-target="#numberAgeGroupModal" data-action="edit">
+                <i class="bi bi-pencil"></i> Modifier
+              </button>
             </div>
-          </div>
-          <div class="mt-2">
-            <button type="button" class="btn btn-outline-secondary btn-sm" id="editNumberAgeGroupBtn" disabled data-bs-toggle="modal" data-bs-target="#numberAgeGroupModal" data-action="edit">
-              <i class="bi bi-pencil"></i> Modifier
-            </button>
           </div>
         </div>
       </div>

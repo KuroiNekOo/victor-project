@@ -4,7 +4,12 @@ export const dispersalService = {
   async getAll() {
     return await prisma.dispersalDistance.findMany({
       include: {
-        species: true
+        bibliographySpecies: {
+          include: {
+            bibliography: true,
+            species: true
+          }
+        }
       }
     });
   },
@@ -13,16 +18,26 @@ export const dispersalService = {
     return await prisma.dispersalDistance.findUnique({
       where: { id: parseInt(id) },
       include: {
-        species: true
+        bibliographySpecies: {
+          include: {
+            bibliography: true,
+            species: true
+          }
+        }
       }
     });
   },
 
-  async getBySpeciesId(speciesId) {
-    return await prisma.dispersalDistance.findUnique({
-      where: { speciesId: parseInt(speciesId) },
+  async getByBibliographySpeciesId(bibliographySpeciesId) {
+    return await prisma.dispersalDistance.findMany({
+      where: { bibliographySpeciesId: parseInt(bibliographySpeciesId) },
       include: {
-        species: true
+        bibliographySpecies: {
+          include: {
+            bibliography: true,
+            species: true
+          }
+        }
       }
     });
   },
@@ -36,7 +51,7 @@ export const dispersalService = {
         se: data.se,
         lowCI: data.lowCI,
         highCI: data.highCI,
-        speciesId: parseInt(data.speciesId)
+        bibliographySpeciesId: data.bibliographySpeciesId ? parseInt(data.bibliographySpeciesId) : null
       }
     });
   },

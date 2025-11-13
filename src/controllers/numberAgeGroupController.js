@@ -1,4 +1,5 @@
 import { numberAgeGroupService } from '../services/numberAgeGroupService.js';
+import { bibliographyService } from '../services/bibliographyService.js';
 
 export const numberAgeGroupController = {
   async getAll(req, res) {
@@ -24,13 +25,27 @@ export const numberAgeGroupController = {
     }
   },
 
-  async getBySpeciesId(req, res) {
+  async getByBibliographySpecies(req, res) {
     try {
-      const groups = await numberAgeGroupService.getBySpeciesId(req.params.speciesId);
-      res.json(groups);
+      const { bibliographyId, speciesId } = req.query;
+
+      if (!bibliographyId || !speciesId) {
+        return res.status(400).json({ error: 'bibliographyId and speciesId are required' });
+      }
+
+      // Récupérer l'ID de BibliographySpecies
+      const bibliographySpeciesId = await bibliographyService.getBibliographySpeciesId(bibliographyId, speciesId);
+
+      if (!bibliographySpeciesId) {
+        return res.json(null); // Pas de relation, donc pas de NumberAgeGroup
+      }
+
+      const group = await numberAgeGroupService.getByBibliographySpeciesId(bibliographySpeciesId);
+      // Retourne un objet unique ou null (one-to-one)
+      res.json(group);
     } catch (error) {
-      console.error('Error fetching number age groups by species:', error);
-      res.status(500).json({ error: 'Failed to fetch number age groups' });
+      console.error('Error fetching number age group by bibliography species:', error);
+      res.status(500).json({ error: 'Failed to fetch number age group' });
     }
   },
 

@@ -94,11 +94,18 @@ const mockAPI = {
     return handleResponse(response);
   },
 
+  async getBibliographySpeciesId(bibliographyId, speciesId) {
+    const response = await fetch(`${API_BASE_URL}/bibliographies/get-bibliography-species-id?bibliographyId=${bibliographyId}&speciesId=${speciesId}`);
+    const result = await handleResponse(response);
+    return result?.bibliographySpeciesId || null;
+  },
+
   // ============================================
   // NUMBER AGE GROUPS
   // ============================================
-  async getNumberAgeGroupsBySpecies(speciesId) {
-    const response = await fetch(`${API_BASE_URL}/number-age-groups/species/${speciesId}`);
+  async getNumberAgeGroupByBibliographySpecies(bibliographyId, speciesId) {
+    // One-to-one : retourne UN SEUL NumberAgeGroup ou null
+    const response = await fetch(`${API_BASE_URL}/number-age-groups/by-bibliography-species?bibliographyId=${bibliographyId}&speciesId=${speciesId}`);
     return handleResponse(response);
   },
 
@@ -135,8 +142,8 @@ const mockAPI = {
   // ============================================
   // AGE GROUPS
   // ============================================
-  async getAgeGroupsByNumberAgeGroup(numberAgeGroupId) {
-    const response = await fetch(`${API_BASE_URL}/age-groups/number-age-group/${numberAgeGroupId}`);
+  async getAgeGroupsByBibliographySpecies(bibliographyId, speciesId) {
+    const response = await fetch(`${API_BASE_URL}/age-groups/by-bibliography-species?bibliographyId=${bibliographyId}&speciesId=${speciesId}`);
     return handleResponse(response);
   },
 
@@ -249,16 +256,16 @@ const mockAPI = {
   // ============================================
   // DISPERSAL DISTANCE
   // ============================================
-  async getDispersalBySpecies(speciesId) {
+  async getDispersalsByBibliographySpecies(bibliographyId, speciesId) {
     try {
-      const response = await fetch(`${API_BASE_URL}/dispersals/species/${speciesId}`);
+      const response = await fetch(`${API_BASE_URL}/dispersals/by-bibliography-species?bibliographyId=${bibliographyId}&speciesId=${speciesId}`);
       if (response.status === 404) {
-        return null;
+        return [];
       }
       return handleResponse(response);
     } catch (error) {
       if (error.message.includes('404')) {
-        return null;
+        return [];
       }
       throw error;
     }
