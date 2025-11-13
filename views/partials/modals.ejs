@@ -2,12 +2,12 @@
 <div class="modal fade" id="speciesModal" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <div class="modal-header bg-primary text-white">
+      <div class="modal-header">
         <h5 class="modal-title">
           <i class="bi bi-bug"></i>
           <span id="speciesModalTitle">Créer une espèce</span>
         </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
         <form id="speciesForm">
@@ -15,27 +15,27 @@
           <div class="row">
             <div class="col-md-6 mb-3">
               <label for="speciesFr" class="form-label">Nom français</label>
-              <input type="text" class="form-control" id="speciesFr">
+              <input type="text" class="form-control" id="speciesFr" placeholder="Nom français">
             </div>
             <div class="col-md-6 mb-3">
               <label for="speciesLat" class="form-label">Nom latin *</label>
-              <input type="text" class="form-control" id="speciesLat" required>
+              <input type="text" class="form-control" id="speciesLat" placeholder="Nom latin" required>
             </div>
           </div>
           <div class="row">
             <div class="col-md-6 mb-3">
               <label for="speciesEn" class="form-label">Nom anglais</label>
-              <input type="text" class="form-control" id="speciesEn">
+              <input type="text" class="form-control" id="speciesEn" placeholder="Nom anglais">
             </div>
             <div class="col-md-6 mb-3">
               <label for="family" class="form-label">Famille</label>
-              <input type="text" class="form-control" id="family">
+              <input type="text" class="form-control" id="family" placeholder="Famille">
             </div>
           </div>
           <div class="row">
             <div class="col-md-6 mb-3">
               <label for="genus" class="form-label">Genre</label>
-              <input type="text" class="form-control" id="genus">
+              <input type="text" class="form-control" id="genus" placeholder="Genre">
             </div>
             <div class="col-md-3 mb-3">
               <div class="form-check mt-4">
@@ -66,12 +66,12 @@
 <div class="modal fade" id="bibliographyModal" tabindex="-1">
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
-      <div class="modal-header bg-info text-white">
+      <div class="modal-header">
         <h5 class="modal-title">
           <i class="bi bi-book"></i>
           <span id="bibliographyModalTitle">Créer une bibliographie</span>
         </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
         <form id="bibliographyForm">
@@ -81,11 +81,11 @@
           <div class="row">
             <div class="col-md-12 mb-3">
               <label for="citation" class="form-label">Citation</label>
-              <textarea class="form-control" id="citation" rows="2"></textarea>
+              <textarea class="form-control" id="citation" rows="2" placeholder="Citation"></textarea>
             </div>
             <div class="col-md-12 mb-3">
               <label for="reference" class="form-label">Référence</label>
-              <textarea class="form-control" id="reference" rows="2"></textarea>
+              <textarea class="form-control" id="reference" rows="2" placeholder="Référence"></textarea>
             </div>
           </div>
 
@@ -93,29 +93,29 @@
           <div class="row">
             <div class="col-md-4 mb-3">
               <label for="publicationDate" class="form-label">Date de publication</label>
-              <input type="text" class="form-control" id="publicationDate">
+              <input type="text" class="form-control" id="publicationDate" placeholder="Date de publication">
             </div>
             <div class="col-md-4 mb-3">
               <label for="country" class="form-label">Pays</label>
-              <input type="text" class="form-control" id="country">
+              <input type="text" class="form-control" id="country" placeholder="Pays">
             </div>
             <div class="col-md-4 mb-3">
               <label for="region" class="form-label">Région</label>
-              <input type="text" class="form-control" id="region">
+              <input type="text" class="form-control" id="region" placeholder="Région">
             </div>
           </div>
           <div class="row">
             <div class="col-md-4 mb-3">
               <label for="studyDuration" class="form-label">Durée de l'étude</label>
-              <input type="text" class="form-control" id="studyDuration">
+              <input type="text" class="form-control" id="studyDuration" placeholder="Durée de l'étude">
             </div>
             <div class="col-md-4 mb-3">
               <label for="datesOfTheStudy" class="form-label">Dates de l'étude</label>
-              <input type="text" class="form-control" id="datesOfTheStudy">
+              <input type="text" class="form-control" id="datesOfTheStudy" placeholder="Dates de l'étude">
             </div>
             <div class="col-md-4 mb-3">
               <label for="season" class="form-label">Saison</label>
-              <input type="text" class="form-control" id="season">
+              <input type="text" class="form-control" id="season" placeholder="Saison">
             </div>
           </div>
 
@@ -123,68 +123,68 @@
           <div class="row">
             <div class="col-md-4 mb-3">
               <label for="sampleSize" class="form-label">Taille de l'échantillon</label>
-              <input type="number" step="0.01" class="form-control" id="sampleSize">
+              <input type="number" step="0.01" class="form-control" id="sampleSize" placeholder="Taille de l'échantillon">
             </div>
             <div class="col-md-4 mb-3">
               <label for="numberMalesSampled" class="form-label">Nombre de mâles</label>
-              <input type="number" step="0.01" class="form-control" id="numberMalesSampled">
+              <input type="number" step="0.01" class="form-control" id="numberMalesSampled" placeholder="Nombre de mâles">
             </div>
             <div class="col-md-4 mb-3">
               <label for="numberFemalesSampled" class="form-label">Nombre de femelles</label>
-              <input type="number" step="0.01" class="form-control" id="numberFemalesSampled">
+              <input type="number" step="0.01" class="form-control" id="numberFemalesSampled" placeholder="Nombre de femelles">
             </div>
           </div>
           <div class="row">
             <div class="col-md-4 mb-3">
               <label for="areaSizeHa" class="form-label">Superficie (ha)</label>
-              <input type="number" step="0.01" class="form-control" id="areaSizeHa">
+              <input type="number" step="0.01" class="form-control" id="areaSizeHa" placeholder="Superficie en hectares">
             </div>
             <div class="col-md-4 mb-3">
               <label for="meanRecaptureProbability" class="form-label">Prob. recapture (moyenne)</label>
-              <input type="number" step="0.0001" class="form-control" id="meanRecaptureProbability">
+              <input type="number" step="0.0001" class="form-control" id="meanRecaptureProbability" placeholder="Probabilité moyenne">
             </div>
             <div class="col-md-4 mb-3">
               <label for="sdMeanRecaptureProbability" class="form-label">Prob. recapture (SD)</label>
-              <input type="number" step="0.0001" class="form-control" id="sdMeanRecaptureProbability">
+              <input type="number" step="0.0001" class="form-control" id="sdMeanRecaptureProbability" placeholder="Écart-type">
             </div>
           </div>
 
           <h6 class="border-bottom pb-2 mb-3 mt-4">Méthodologie</h6>
           <div class="mb-3">
             <label for="methodologyUsed" class="form-label">Méthodologie utilisée</label>
-            <textarea class="form-control" id="methodologyUsed" rows="2"></textarea>
+            <textarea class="form-control" id="methodologyUsed" rows="2" placeholder="Méthodologie utilisée"></textarea>
           </div>
           <div class="mb-3">
             <label for="modelUsed" class="form-label">Modèle utilisé</label>
-            <textarea class="form-control" id="modelUsed" rows="2"></textarea>
+            <textarea class="form-control" id="modelUsed" rows="2" placeholder="Modèle utilisé"></textarea>
           </div>
           <div class="row">
             <div class="col-md-6 mb-3">
               <label for="captureMethod" class="form-label">Méthode de capture</label>
-              <textarea class="form-control" id="captureMethod" rows="2"></textarea>
+              <textarea class="form-control" id="captureMethod" rows="2" placeholder="Méthode de capture"></textarea>
             </div>
             <div class="col-md-6 mb-3">
               <label for="markingMethod" class="form-label">Méthode de marquage</label>
-              <textarea class="form-control" id="markingMethod" rows="2"></textarea>
+              <textarea class="form-control" id="markingMethod" rows="2" placeholder="Méthode de marquage"></textarea>
             </div>
           </div>
           <div class="mb-3">
             <label for="captureFrequency" class="form-label">Fréquence de capture</label>
-            <textarea class="form-control" id="captureFrequency" rows="2"></textarea>
+            <textarea class="form-control" id="captureFrequency" rows="2" placeholder="Fréquence de capture"></textarea>
           </div>
 
           <h6 class="border-bottom pb-2 mb-3 mt-4">Notes et fiabilité</h6>
           <div class="mb-3">
             <label for="biasesAndProblems" class="form-label">Biais et problèmes</label>
-            <textarea class="form-control" id="biasesAndProblems" rows="2"></textarea>
+            <textarea class="form-control" id="biasesAndProblems" rows="2" placeholder="Biais et problèmes identifiés"></textarea>
           </div>
           <div class="mb-3">
             <label for="otherNote" class="form-label">Autres notes</label>
-            <textarea class="form-control" id="otherNote" rows="2"></textarea>
+            <textarea class="form-control" id="otherNote" rows="2" placeholder="Autres notes"></textarea>
           </div>
           <div class="mb-3">
             <label for="reliability" class="form-label">Fiabilité</label>
-            <input type="text" class="form-control" id="reliability">
+            <input type="text" class="form-control" id="reliability" placeholder="Niveau de fiabilité">
           </div>
         </form>
       </div>
@@ -202,7 +202,7 @@
 <div class="modal fade" id="numberAgeGroupModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
-      <div class="modal-header bg-warning">
+      <div class="modal-header">
         <h5 class="modal-title">
           <i class="bi bi-list-ol"></i>
           <span id="numberAgeGroupModalTitle">Créer un nombre de groupes d'âge</span>
@@ -214,7 +214,7 @@
           <input type="hidden" id="numberAgeGroupId">
           <div class="mb-3">
             <label for="numberOfAgeGroups" class="form-label">Nombre de groupes d'âge *</label>
-            <input type="number" class="form-control" id="numberOfAgeGroups" required min="1">
+            <input type="number" class="form-control" id="numberOfAgeGroups" required min="1" placeholder="Nombre de groupes d'âge">
             <div class="form-text">Indiquez combien de groupes d'âge sont utilisés dans cette étude</div>
           </div>
         </form>
@@ -233,19 +233,19 @@
 <div class="modal fade" id="ageGroupModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
-      <div class="modal-header bg-secondary text-white">
+      <div class="modal-header">
         <h5 class="modal-title">
           <i class="bi bi-people"></i>
           <span id="ageGroupModalTitle">Créer un groupe d'âge</span>
         </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
         <form id="ageGroupForm">
           <input type="hidden" id="ageGroupId">
           <div class="mb-3">
             <label for="ageGroup" class="form-label">Groupe d'âge (numéro)</label>
-            <input type="number" class="form-control" id="ageGroup" min="0">
+            <input type="number" class="form-control" id="ageGroup" min="0" placeholder="Numéro du groupe">
             <div class="form-text">Ex: 0, 1, 2, 3...</div>
           </div>
           <div class="mb-3">
@@ -268,12 +268,12 @@
 <div class="modal fade" id="survivalModal" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <div class="modal-header bg-success text-white">
+      <div class="modal-header">
         <h5 class="modal-title">
           <i class="bi bi-heart-pulse"></i>
           <span id="survivalModalTitle">Ajouter données de survie</span>
         </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
         <form id="survivalForm">
@@ -282,11 +282,11 @@
           <div class="row">
             <div class="col-md-6 mb-3">
               <label for="survivalAgeGroup" class="form-label">Groupe d'âge</label>
-              <input type="number" class="form-control" id="survivalAgeGroup">
+              <input type="number" class="form-control" id="survivalAgeGroup" placeholder="Groupe d'âge">
             </div>
             <div class="col-md-6 mb-3">
               <label for="ageGroupConsideredSurvival" class="form-label">Considéré dans la publication</label>
-              <input type="text" class="form-control" id="ageGroupConsideredSurvival">
+              <input type="text" class="form-control" id="ageGroupConsideredSurvival" placeholder="Considéré comme">
             </div>
           </div>
 
@@ -304,36 +304,36 @@
           <div class="row">
             <div class="col-md-4 mb-3">
               <label for="minSurvivalRate" class="form-label">Min</label>
-              <input type="number" step="0.0001" class="form-control" id="minSurvivalRate">
+              <input type="number" step="0.0001" class="form-control" id="minSurvivalRate" placeholder="Minimum">
             </div>
             <div class="col-md-4 mb-3">
               <label for="meanSurvivalRate" class="form-label">Moyenne</label>
-              <input type="number" step="0.0001" class="form-control" id="meanSurvivalRate">
+              <input type="number" step="0.0001" class="form-control" id="meanSurvivalRate" placeholder="Moyenne">
             </div>
             <div class="col-md-4 mb-3">
               <label for="maxSurvivalRate" class="form-label">Max</label>
-              <input type="number" step="0.0001" class="form-control" id="maxSurvivalRate">
+              <input type="number" step="0.0001" class="form-control" id="maxSurvivalRate" placeholder="Maximum">
             </div>
           </div>
 
           <div class="mb-3">
             <label for="recaptureProbability" class="form-label">Probabilité de recapture</label>
-            <input type="number" step="0.0001" class="form-control" id="recaptureProbability">
+            <input type="number" step="0.0001" class="form-control" id="recaptureProbability" placeholder="Probabilité de recapture">
           </div>
 
           <h6 class="border-bottom pb-2 mb-3">Longévité (années)</h6>
           <div class="row">
             <div class="col-md-4 mb-3">
               <label for="minLongevityYears" class="form-label">Min</label>
-              <input type="number" step="0.01" class="form-control" id="minLongevityYears">
+              <input type="number" step="0.01" class="form-control" id="minLongevityYears" placeholder="Minimum">
             </div>
             <div class="col-md-4 mb-3">
               <label for="meanLongevityYears" class="form-label">Moyenne</label>
-              <input type="number" step="0.01" class="form-control" id="meanLongevityYears">
+              <input type="number" step="0.01" class="form-control" id="meanLongevityYears" placeholder="Moyenne">
             </div>
             <div class="col-md-4 mb-3">
               <label for="maxLongevityYears" class="form-label">Max</label>
-              <input type="number" step="0.01" class="form-control" id="maxLongevityYears">
+              <input type="number" step="0.01" class="form-control" id="maxLongevityYears" placeholder="Maximum">
             </div>
           </div>
 
@@ -341,15 +341,15 @@
           <div class="row">
             <div class="col-md-4 mb-3">
               <label for="survivalSE" class="form-label">SE</label>
-              <input type="number" step="0.0001" class="form-control" id="survivalSE">
+              <input type="number" step="0.0001" class="form-control" id="survivalSE" placeholder="SE">
             </div>
             <div class="col-md-4 mb-3">
               <label for="survivalLowCI" class="form-label">Low CI</label>
-              <input type="number" step="0.0001" class="form-control" id="survivalLowCI">
+              <input type="number" step="0.0001" class="form-control" id="survivalLowCI" placeholder="Low CI">
             </div>
             <div class="col-md-4 mb-3">
               <label for="survivalHighCI" class="form-label">High CI</label>
-              <input type="number" step="0.0001" class="form-control" id="survivalHighCI">
+              <input type="number" step="0.0001" class="form-control" id="survivalHighCI" placeholder="High CI">
             </div>
           </div>
         </form>
@@ -368,12 +368,12 @@
 <div class="modal fade" id="fecundityModal" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <div class="modal-header bg-danger text-white">
+      <div class="modal-header">
         <h5 class="modal-title">
           <i class="bi bi-egg"></i>
           <span id="fecundityModalTitle">Ajouter données de fécondité</span>
         </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
         <form id="fecundityForm">
@@ -382,11 +382,11 @@
           <div class="row">
             <div class="col-md-6 mb-3">
               <label for="fecundityAgeGroup" class="form-label">Groupe d'âge</label>
-              <input type="number" class="form-control" id="fecundityAgeGroup">
+              <input type="number" class="form-control" id="fecundityAgeGroup" placeholder="Groupe d'âge">
             </div>
             <div class="col-md-6 mb-3">
               <label for="ageGroupConsideredFecundity" class="form-label">Considéré dans la publication</label>
-              <input type="text" class="form-control" id="ageGroupConsideredFecundity">
+              <input type="text" class="form-control" id="ageGroupConsideredFecundity" placeholder="Considéré comme">
             </div>
           </div>
 
@@ -394,15 +394,15 @@
           <div class="row">
             <div class="col-md-4 mb-3">
               <label for="minFecundityRate" class="form-label">Min</label>
-              <input type="number" step="0.0001" class="form-control" id="minFecundityRate">
+              <input type="number" step="0.0001" class="form-control" id="minFecundityRate" placeholder="Minimum">
             </div>
             <div class="col-md-4 mb-3">
               <label for="meanFecundityRate" class="form-label">Moyenne</label>
-              <input type="number" step="0.0001" class="form-control" id="meanFecundityRate">
+              <input type="number" step="0.0001" class="form-control" id="meanFecundityRate" placeholder="Moyenne">
             </div>
             <div class="col-md-4 mb-3">
               <label for="maxFecundityRate" class="form-label">Max</label>
-              <input type="number" step="0.0001" class="form-control" id="maxFecundityRate">
+              <input type="number" step="0.0001" class="form-control" id="maxFecundityRate" placeholder="Maximum">
             </div>
           </div>
 
@@ -410,15 +410,15 @@
           <div class="row">
             <div class="col-md-4 mb-3">
               <label for="fecunditySE" class="form-label">SE</label>
-              <input type="number" step="0.0001" class="form-control" id="fecunditySE">
+              <input type="number" step="0.0001" class="form-control" id="fecunditySE" placeholder="SE">
             </div>
             <div class="col-md-4 mb-3">
               <label for="fecundityLowCI" class="form-label">Low CI</label>
-              <input type="number" step="0.0001" class="form-control" id="fecundityLowCI">
+              <input type="number" step="0.0001" class="form-control" id="fecundityLowCI" placeholder="Low CI">
             </div>
             <div class="col-md-4 mb-3">
               <label for="fecundityHighCI" class="form-label">High CI</label>
-              <input type="number" step="0.0001" class="form-control" id="fecundityHighCI">
+              <input type="number" step="0.0001" class="form-control" id="fecundityHighCI" placeholder="High CI">
             </div>
           </div>
         </form>
@@ -437,12 +437,12 @@
 <div class="modal fade" id="dispersalModal" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <div class="modal-header bg-dark text-white">
+      <div class="modal-header">
         <h5 class="modal-title">
           <i class="bi bi-arrows-move"></i>
           Distance de dispersion
         </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
         <form id="dispersalForm">
@@ -452,15 +452,15 @@
           <div class="row">
             <div class="col-md-4 mb-3">
               <label for="minDispersalDistance" class="form-label">Min</label>
-              <input type="number" step="0.01" class="form-control" id="minDispersalDistance">
+              <input type="number" step="0.01" class="form-control" id="minDispersalDistance" placeholder="Minimum">
             </div>
             <div class="col-md-4 mb-3">
               <label for="meanDispersalDistance" class="form-label">Moyenne</label>
-              <input type="number" step="0.01" class="form-control" id="meanDispersalDistance">
+              <input type="number" step="0.01" class="form-control" id="meanDispersalDistance" placeholder="Moyenne">
             </div>
             <div class="col-md-4 mb-3">
               <label for="maxDispersalDistance" class="form-label">Max</label>
-              <input type="number" step="0.01" class="form-control" id="maxDispersalDistance">
+              <input type="number" step="0.01" class="form-control" id="maxDispersalDistance" placeholder="Maximum">
             </div>
           </div>
 
@@ -468,15 +468,15 @@
           <div class="row">
             <div class="col-md-4 mb-3">
               <label for="dispersalSE" class="form-label">SE</label>
-              <input type="number" step="0.01" class="form-control" id="dispersalSE">
+              <input type="number" step="0.01" class="form-control" id="dispersalSE" placeholder="SE">
             </div>
             <div class="col-md-4 mb-3">
               <label for="dispersalLowCI" class="form-label">Low CI</label>
-              <input type="number" step="0.01" class="form-control" id="dispersalLowCI">
+              <input type="number" step="0.01" class="form-control" id="dispersalLowCI" placeholder="Low CI">
             </div>
             <div class="col-md-4 mb-3">
               <label for="dispersalHighCI" class="form-label">High CI</label>
-              <input type="number" step="0.01" class="form-control" id="dispersalHighCI">
+              <input type="number" step="0.01" class="form-control" id="dispersalHighCI" placeholder="High CI">
             </div>
           </div>
         </form>

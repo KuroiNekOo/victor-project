@@ -1,6 +1,7 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import apiRoutes from './routes/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -26,6 +27,9 @@ app.use((req, res, next) => {
   next();
 });
 
+// Routes API
+app.use('/api', apiRoutes);
+
 // Route principale - Formulaire de saisie
 app.get('/', (req, res) => {
   res.render('index');
@@ -39,7 +43,7 @@ app.use((req, res) => {
 // Gestionnaire d'erreurs global
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).send('Something went wrong!');
+  res.status(500).json({ error: err.message || 'Something went wrong!' });
 });
 
 export default app;
