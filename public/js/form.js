@@ -371,26 +371,58 @@ function setupEventListeners() {
   document.getElementById('saveAgeGroupBtn').addEventListener('click', saveAgeGroup);
 
   // Modal Survival
-  document.getElementById('survivalModal').addEventListener('show.bs.modal', (e) => {
+  document.getElementById('survivalModal').addEventListener('show.bs.modal', async (e) => {
     const button = e.relatedTarget;
     const action = button.getAttribute('data-action');
     formState.currentAction = action;
 
     if (action === 'create') {
       clearSurvivalForm();
+
+      // Pré-remplir avec les données de l'AgeGroup sélectionné (bloc 4)
+      if (formState.selectedAgeGroupId) {
+        const ageGroup = await mockAPI.getAgeGroupById(formState.selectedAgeGroupId);
+        if (ageGroup) {
+          document.getElementById('survivalAgeGroup').value = ageGroup.ageGroup || '';
+          document.getElementById('survivalAgeGroup').readOnly = true; // En lecture seule
+
+          document.getElementById('ageGroupConsideredSurvival').value = ageGroup.consideredAs || '';
+          document.getElementById('ageGroupConsideredSurvival').readOnly = true; // En lecture seule
+        }
+      }
+    } else {
+      // En mode édition, permettre la modification
+      document.getElementById('survivalAgeGroup').readOnly = false;
+      document.getElementById('ageGroupConsideredSurvival').readOnly = false;
     }
   });
 
   document.getElementById('saveSurvivalBtn').addEventListener('click', saveSurvival);
 
   // Modal Fecundity
-  document.getElementById('fecundityModal').addEventListener('show.bs.modal', (e) => {
+  document.getElementById('fecundityModal').addEventListener('show.bs.modal', async (e) => {
     const button = e.relatedTarget;
     const action = button.getAttribute('data-action');
     formState.currentAction = action;
 
     if (action === 'create') {
       clearFecundityForm();
+
+      // Pré-remplir avec les données de l'AgeGroup sélectionné (bloc 4)
+      if (formState.selectedAgeGroupId) {
+        const ageGroup = await mockAPI.getAgeGroupById(formState.selectedAgeGroupId);
+        if (ageGroup) {
+          document.getElementById('fecundityAgeGroup').value = ageGroup.ageGroup || '';
+          document.getElementById('fecundityAgeGroup').readOnly = true; // En lecture seule
+
+          document.getElementById('ageGroupConsideredFecundity').value = ageGroup.consideredAs || '';
+          document.getElementById('ageGroupConsideredFecundity').readOnly = true; // En lecture seule
+        }
+      }
+    } else {
+      // En mode édition, permettre la modification
+      document.getElementById('fecundityAgeGroup').readOnly = false;
+      document.getElementById('ageGroupConsideredFecundity').readOnly = false;
     }
   });
 
