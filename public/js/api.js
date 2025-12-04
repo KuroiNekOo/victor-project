@@ -101,45 +101,6 @@ const mockAPI = {
   },
 
   // ============================================
-  // NUMBER AGE GROUPS
-  // ============================================
-  async getNumberAgeGroupByBibliographySpecies(bibliographyId, speciesId) {
-    // One-to-one : retourne UN SEUL NumberAgeGroup ou null
-    const response = await fetch(`${API_BASE_URL}/number-age-groups/by-bibliography-species?bibliographyId=${bibliographyId}&speciesId=${speciesId}`);
-    return handleResponse(response);
-  },
-
-  async getNumberAgeGroupById(id) {
-    const response = await fetch(`${API_BASE_URL}/number-age-groups/${id}`);
-    return handleResponse(response);
-  },
-
-  async createNumberAgeGroup(data) {
-    const response = await fetch(`${API_BASE_URL}/number-age-groups`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-    return handleResponse(response);
-  },
-
-  async updateNumberAgeGroup(id, data) {
-    const response = await fetch(`${API_BASE_URL}/number-age-groups/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-    return handleResponse(response);
-  },
-
-  async deleteNumberAgeGroup(id) {
-    const response = await fetch(`${API_BASE_URL}/number-age-groups/${id}`, {
-      method: 'DELETE'
-    });
-    return handleResponse(response);
-  },
-
-  // ============================================
   // AGE GROUPS
   // ============================================
   async getAgeGroupsByBibliographySpecies(bibliographyId, speciesId) {
@@ -292,6 +253,86 @@ const mockAPI = {
   async deleteDispersal(id) {
     const response = await fetch(`${API_BASE_URL}/dispersals/${id}`, {
       method: 'DELETE'
+    });
+    return handleResponse(response);
+  },
+
+  // ============================================
+  // CONFIDENCE RATE (Taux de confiance)
+  // ============================================
+  async getConfidenceRates() {
+    const response = await fetch(`${API_BASE_URL}/confidence-rates`);
+    return handleResponse(response);
+  },
+
+  async getConfidenceRateById(id) {
+    const response = await fetch(`${API_BASE_URL}/confidence-rates/${id}`);
+    return handleResponse(response);
+  },
+
+  async getConfidenceRatesBySurvival(survivalId) {
+    const response = await fetch(`${API_BASE_URL}/confidence-rates/survival/${survivalId}`);
+    return handleResponse(response);
+  },
+
+  async getConfidenceRatesByFecundity(fecundityId) {
+    const response = await fetch(`${API_BASE_URL}/confidence-rates/fecundity/${fecundityId}`);
+    return handleResponse(response);
+  },
+
+  async getConfidenceRatesByDispersal(dispersalId) {
+    const response = await fetch(`${API_BASE_URL}/confidence-rates/dispersal/${dispersalId}`);
+    return handleResponse(response);
+  },
+
+  async createConfidenceRate(data) {
+    const response = await fetch(`${API_BASE_URL}/confidence-rates`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    return handleResponse(response);
+  },
+
+  async updateConfidenceRate(id, data) {
+    const response = await fetch(`${API_BASE_URL}/confidence-rates/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    return handleResponse(response);
+  },
+
+  async deleteConfidenceRate(id) {
+    const response = await fetch(`${API_BASE_URL}/confidence-rates/${id}`, {
+      method: 'DELETE'
+    });
+    return handleResponse(response);
+  },
+
+  async linkConfidenceRateToSurvival(confidenceRateId, survivalId) {
+    const response = await fetch(`${API_BASE_URL}/confidence-rates/${confidenceRateId}/link-survival`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ survivalId })
+    });
+    return handleResponse(response);
+  },
+
+  async linkConfidenceRateToFecundity(confidenceRateId, fecundityId) {
+    const response = await fetch(`${API_BASE_URL}/confidence-rates/${confidenceRateId}/link-fecundity`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fecundityId })
+    });
+    return handleResponse(response);
+  },
+
+  async linkConfidenceRateToDispersal(confidenceRateId, dispersalId) {
+    const response = await fetch(`${API_BASE_URL}/confidence-rates/${confidenceRateId}/link-dispersal`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dispersalId })
     });
     return handleResponse(response);
   }

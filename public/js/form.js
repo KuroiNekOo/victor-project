@@ -2,7 +2,6 @@
 const formState = {
   selectedSpeciesId: null,
   selectedBibliographyId: null,
-  selectedNumberAgeGroupId: null,
   selectedAgeGroupId: null,
   currentAction: null, // 'create' ou 'edit'
   editingId: null
@@ -60,34 +59,6 @@ async function loadBibliographies(speciesId) {
 
   // Afficher la carte bibliographie
   document.getElementById('bibliographyCard').style.display = 'block';
-}
-
-async function loadNumberAgeGroups(bibliographyId, speciesId) {
-  const group = await mockAPI.getNumberAgeGroupByBibliographySpecies(bibliographyId, speciesId);
-  const input = document.getElementById('numberAgeGroupInput');
-  const hiddenId = document.getElementById('numberAgeGroupId');
-  const createBtn = document.getElementById('createNumberAgeGroupBtn');
-  const editBtn = document.getElementById('editNumberAgeGroupBtn');
-
-  if (group) {
-    // Un NumberAgeGroup existe : afficher la valeur et le bouton modifier
-    input.value = group.numberOfAgeGroups || '';
-    hiddenId.value = group.id;
-    formState.selectedNumberAgeGroupId = group.id;
-    createBtn.style.display = 'none';
-    editBtn.style.display = 'block';
-  } else {
-    // Aucun NumberAgeGroup : afficher le bouton créer
-    input.value = '';
-    input.placeholder = 'Non défini';
-    hiddenId.value = '';
-    formState.selectedNumberAgeGroupId = null;
-    createBtn.style.display = 'block';
-    editBtn.style.display = 'none';
-  }
-
-  // Afficher la carte numberAgeGroup
-  document.getElementById('numberAgeGroupCard').style.display = 'block';
 }
 
 async function loadAgeGroups(bibliographyId, speciesId) {
@@ -189,8 +160,8 @@ async function loadDispersalData(bibliographyId, speciesId) {
       div.className = 'mb-3';
       div.innerHTML = `
         <h6>Distance de dispersion</h6>
-        <p class="mb-1"><strong>Moyenne:</strong> ${dispersal.meanDispersalDistance || 'N/A'} m</p>
-        <p class="mb-0"><strong>Min - Max:</strong> ${dispersal.minDispersalDistance || 'N/A'} - ${dispersal.maxDispersalDistance || 'N/A'} m</p>
+        <p class="mb-1"><strong>Moyenne:</strong> ${dispersal.meanDispersalDistance || 'N/A'} km</p>
+        <p class="mb-0"><strong>Min - Max:</strong> ${dispersal.minDispersalDistance || 'N/A'} - ${dispersal.maxDispersalDistance || 'N/A'} km</p>
       `;
       infoContainer.appendChild(div);
     });
@@ -213,18 +184,16 @@ function setupEventListeners() {
     if (e.target.value) {
       await loadBibliographies(e.target.value);
 
-      // Reset TOUS les blocs suivants (2, 3, 4, 5, 6, 7)
+      // Reset TOUS les blocs suivants
       // Réinitialiser la sélection de Bibliography à default
       document.getElementById('bibliographySelect').value = '';
       formState.selectedBibliographyId = null;
       document.getElementById('editBibliographyBtn').disabled = true;
 
       // Cacher et réinitialiser tous les blocs suivants
-      document.getElementById('numberAgeGroupCard').style.display = 'none';
       document.getElementById('ageGroupCard').style.display = 'none';
       document.getElementById('dispersalCard').style.display = 'none';
       hideDataCards();
-      resetNumberAgeGroupSelection();
       resetAgeGroupSelection();
     } else {
       hideAllCards();
@@ -237,30 +206,25 @@ function setupEventListeners() {
     document.getElementById('editBibliographyBtn').disabled = !e.target.value;
 
     if (e.target.value && formState.selectedSpeciesId) {
-      // Charger les blocs 3, 4 et 7 avec les nouvelles données
-      await loadNumberAgeGroups(e.target.value, formState.selectedSpeciesId);
+      // Charger les blocs AgeGroup et Dispersal avec les nouvelles données
       await loadAgeGroups(e.target.value, formState.selectedSpeciesId);
       await loadDispersalData(e.target.value, formState.selectedSpeciesId);
 
-      // Reset la sélection AgeGroup à default (bloc 4)
+      // Reset la sélection AgeGroup à default
       document.getElementById('ageGroupSelect').value = '';
       formState.selectedAgeGroupId = null;
       document.getElementById('editAgeGroupBtn').disabled = true;
 
-      // Cacher les blocs 5 et 6 (Survival et Fecundity) car aucun AgeGroup n'est sélectionné
+      // Cacher les blocs Survival et Fecundity car aucun AgeGroup n'est sélectionné
       hideDataCards();
     } else {
       // Si aucune bibliography n'est sélectionnée, cacher tous les blocs suivants
-      document.getElementById('numberAgeGroupCard').style.display = 'none';
       document.getElementById('ageGroupCard').style.display = 'none';
       document.getElementById('dispersalCard').style.display = 'none';
       hideDataCards();
-      resetNumberAgeGroupSelection();
       resetAgeGroupSelection();
     }
   });
-
-  // NumberAgeGroup : plus besoin d'event listener car c'est un input readonly
 
   // AgeGroup selection
   document.getElementById('ageGroupSelect').addEventListener('change', async (e) => {
@@ -275,22 +239,30 @@ function setupEventListeners() {
     }
   });
 
-  // Modal Species
-  document.getElementById('speciesModal').addEventListener('show.bs.modal', async (e) => {
+  // Modal Species - stocker l'action au moment de l'ouverture
+  document.getElementById('speciesModal').addEventListener('show.bs.modal', (e) => {
     const button = e.relatedTarget;
-    const action = button.getAttribute('data-action');
-    formState.currentAction = action;
+    formState.currentAction = button ? button.getAttribute('data-action') : 'create';
 
     document.getElementById('speciesModalTitle').textContent =
-      action === 'create' ? 'Créer une espèce' : 'Modifier l\'espèce';
+      formState.currentAction === 'create' ? 'Créer une espèce' : 'Modifier l\'espèce';
 
-    if (action === 'edit' && formState.selectedSpeciesId) {
-      const species = await mockAPI.getSpeciesById(formState.selectedSpeciesId);
-      if (species) {
-        fillSpeciesForm(species);
+    // Toujours effacer le formulaire d'abord
+    clearSpeciesForm();
+  });
+
+  // Modal Species - charger les données après affichage
+  document.getElementById('speciesModal').addEventListener('shown.bs.modal', async (e) => {
+    // Pré-remplir si on est en mode édition avec une espèce sélectionnée
+    if (formState.currentAction === 'edit' && formState.selectedSpeciesId) {
+      try {
+        const species = await mockAPI.getSpeciesById(formState.selectedSpeciesId);
+        if (species) {
+          fillSpeciesForm(species);
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement de l\'espèce:', error);
       }
-    } else {
-      clearSpeciesForm();
     }
   });
 
@@ -327,27 +299,6 @@ function setupEventListeners() {
   });
 
   document.getElementById('saveBibliographyBtn').addEventListener('click', saveBibliography);
-
-  // Modal NumberAgeGroup
-  document.getElementById('numberAgeGroupModal').addEventListener('show.bs.modal', async (e) => {
-    const button = e.relatedTarget;
-    const action = button.getAttribute('data-action');
-    formState.currentAction = action;
-
-    document.getElementById('numberAgeGroupModalTitle').textContent =
-      action === 'create' ? 'Créer un nombre de groupes d\'âge' : 'Modifier le nombre de groupes d\'âge';
-
-    if (action === 'edit' && formState.selectedNumberAgeGroupId) {
-      const group = await mockAPI.getNumberAgeGroupById(formState.selectedNumberAgeGroupId);
-      if (group) {
-        fillNumberAgeGroupForm(group);
-      }
-    } else {
-      clearNumberAgeGroupForm();
-    }
-  });
-
-  document.getElementById('saveNumberAgeGroupBtn').addEventListener('click', saveNumberAgeGroup);
 
   // Modal AgeGroup
   document.getElementById('ageGroupModal').addEventListener('show.bs.modal', async (e) => {
@@ -456,11 +407,35 @@ function setupEventListeners() {
 // SAVE FUNCTIONS
 // ============================================
 
+// Validation snake_case
+function isValidSnakeCase(value) {
+  if (!value) return true; // Champs optionnels
+  return /^[a-z]+(_[a-z]+)*$/.test(value);
+}
+
 async function saveSpecies() {
+  const speciesFr = document.getElementById('speciesFr').value || null;
+  const speciesLat = document.getElementById('speciesLat').value;
+  const speciesEn = document.getElementById('speciesEn').value || null;
+
+  // Validation snake_case
+  if (speciesFr && !isValidSnakeCase(speciesFr)) {
+    alert('Le nom français doit être en snake_case (ex: pipistrelle_commune)');
+    return;
+  }
+  if (speciesLat && !isValidSnakeCase(speciesLat)) {
+    alert('Le nom latin doit être en snake_case (ex: pipistrellus_pipistrellus)');
+    return;
+  }
+  if (speciesEn && !isValidSnakeCase(speciesEn)) {
+    alert('Le nom anglais doit être en snake_case (ex: common_pipistrelle)');
+    return;
+  }
+
   const data = {
-    speciesFr: document.getElementById('speciesFr').value || null,
-    speciesLat: document.getElementById('speciesLat').value,
-    speciesEn: document.getElementById('speciesEn').value || null,
+    speciesFr: speciesFr,
+    speciesLat: speciesLat,
+    speciesEn: speciesEn,
     family: document.getElementById('family').value || null,
     genus: document.getElementById('genus').value || null,
     inFrance: document.getElementById('inFrance').checked,
@@ -563,17 +538,16 @@ async function saveBibliography() {
     formState.selectedBibliographyId = result.id;
     document.getElementById('editBibliographyBtn').disabled = false;
 
-    // Charger automatiquement les blocs suivants (3, 4, 7)
-    await loadNumberAgeGroups(result.id, formState.selectedSpeciesId);
+    // Charger automatiquement les blocs suivants
     await loadAgeGroups(result.id, formState.selectedSpeciesId);
     await loadDispersalData(result.id, formState.selectedSpeciesId);
 
-    // Reset la sélection AgeGroup à default (bloc 4)
+    // Reset la sélection AgeGroup à default
     document.getElementById('ageGroupSelect').value = '';
     formState.selectedAgeGroupId = null;
     document.getElementById('editAgeGroupBtn').disabled = true;
 
-    // Cacher les blocs 5 et 6 (Survival et Fecundity) car aucun AgeGroup n'est sélectionné
+    // Cacher les blocs Survival et Fecundity car aucun AgeGroup n'est sélectionné
     hideDataCards();
   } else {
     // La bibliography n'est plus liée à l'espèce courante : réinitialiser tout
@@ -582,56 +556,13 @@ async function saveBibliography() {
     document.getElementById('editBibliographyBtn').disabled = true;
 
     // Cacher tous les blocs suivants
-    document.getElementById('numberAgeGroupCard').style.display = 'none';
     document.getElementById('ageGroupCard').style.display = 'none';
     document.getElementById('dispersalCard').style.display = 'none';
     hideDataCards();
 
     // Réinitialiser les états
-    resetNumberAgeGroupSelection();
     resetAgeGroupSelection();
   }
-}
-
-async function saveNumberAgeGroup() {
-  const numberOfAgeGroups = parseInt(document.getElementById('numberOfAgeGroups').value);
-
-  if (!numberOfAgeGroups || numberOfAgeGroups < 1) {
-    alert('Le nombre de groupes d\'âge doit être au moins 1');
-    return;
-  }
-
-  // Récupérer le bibliographySpeciesId
-  const bibliographySpeciesId = await mockAPI.getBibliographySpeciesId(
-    formState.selectedBibliographyId,
-    formState.selectedSpeciesId
-  );
-
-  if (!bibliographySpeciesId) {
-    alert('Erreur: impossible de trouver la relation Bibliography-Species');
-    return;
-  }
-
-  const data = {
-    bibliographySpeciesId: parseInt(bibliographySpeciesId),
-    numberOfAgeGroups: numberOfAgeGroups
-  };
-
-  let result;
-  if (formState.currentAction === 'create') {
-    result = await mockAPI.createNumberAgeGroup(data);
-  } else {
-    result = await mockAPI.updateNumberAgeGroup(formState.selectedNumberAgeGroupId, data);
-  }
-
-  const modal = bootstrap.Modal.getInstance(document.getElementById('numberAgeGroupModal'));
-  modal.hide();
-
-  // Recharger et afficher le NumberAgeGroup mis à jour
-  await loadNumberAgeGroups(formState.selectedBibliographyId, formState.selectedSpeciesId);
-
-  // Pas besoin de recharger les blocs suivants car NumberAgeGroup est juste un affichage
-  // Les AgeGroups ne dépendent pas de NumberAgeGroup
 }
 
 async function saveAgeGroup() {
@@ -710,6 +641,9 @@ async function saveFecundity() {
     minFecundityRate: parseFloat(document.getElementById('minFecundityRate').value) || null,
     meanFecundityRate: parseFloat(document.getElementById('meanFecundityRate').value) || null,
     maxFecundityRate: parseFloat(document.getElementById('maxFecundityRate').value) || null,
+    minProductivity: parseFloat(document.getElementById('minProductivity').value) || null,
+    meanProductivity: parseFloat(document.getElementById('meanProductivity').value) || null,
+    maxProductivity: parseFloat(document.getElementById('maxProductivity').value) || null,
     se: parseFloat(document.getElementById('fecunditySE').value) || null,
     lowCI: parseFloat(document.getElementById('fecundityLowCI').value) || null,
     highCI: parseFloat(document.getElementById('fecundityHighCI').value) || null
@@ -872,11 +806,6 @@ function fillBibliographyForm(bib) {
   }
 }
 
-function fillNumberAgeGroupForm(group) {
-  document.getElementById('numberAgeGroupId').value = group.id;
-  document.getElementById('numberOfAgeGroups').value = group.numberOfAgeGroups || '';
-}
-
 function fillAgeGroupForm(group) {
   document.getElementById('ageGroupId').value = group.id;
   document.getElementById('ageGroup').value = group.ageGroup || '';
@@ -907,6 +836,9 @@ function fillFecundityForm(fecundity) {
   document.getElementById('minFecundityRate').value = fecundity.minFecundityRate || '';
   document.getElementById('meanFecundityRate').value = fecundity.meanFecundityRate || '';
   document.getElementById('maxFecundityRate').value = fecundity.maxFecundityRate || '';
+  document.getElementById('minProductivity').value = fecundity.minProductivity || '';
+  document.getElementById('meanProductivity').value = fecundity.meanProductivity || '';
+  document.getElementById('maxProductivity').value = fecundity.maxProductivity || '';
   document.getElementById('fecunditySE').value = fecundity.se || '';
   document.getElementById('fecundityLowCI').value = fecundity.lowCI || '';
   document.getElementById('fecundityHighCI').value = fecundity.highCI || '';
@@ -934,11 +866,6 @@ function clearSpeciesForm() {
 function clearBibliographyForm() {
   document.getElementById('bibliographyForm').reset();
   document.getElementById('bibliographyId').value = '';
-}
-
-function clearNumberAgeGroupForm() {
-  document.getElementById('numberAgeGroupForm').reset();
-  document.getElementById('numberAgeGroupId').value = '';
 }
 
 function clearAgeGroupForm() {
@@ -971,14 +898,6 @@ function resetBibliographySelection() {
   document.getElementById('editBibliographyBtn').disabled = true;
 }
 
-function resetNumberAgeGroupSelection() {
-  document.getElementById('numberAgeGroupInput').value = '';
-  document.getElementById('numberAgeGroupId').value = '';
-  formState.selectedNumberAgeGroupId = null;
-  document.getElementById('createNumberAgeGroupBtn').style.display = 'block';
-  document.getElementById('editNumberAgeGroupBtn').style.display = 'none';
-}
-
 function resetAgeGroupSelection() {
   document.getElementById('ageGroupSelect').value = '';
   formState.selectedAgeGroupId = null;
@@ -988,7 +907,6 @@ function resetAgeGroupSelection() {
 
 function hideAllCards() {
   document.getElementById('bibliographyCard').style.display = 'none';
-  document.getElementById('numberAgeGroupCard').style.display = 'none';
   document.getElementById('ageGroupCard').style.display = 'none';
   document.getElementById('dispersalCard').style.display = 'none';
   hideDataCards();

@@ -26,7 +26,7 @@ model Species {
   inFrance    Boolean? @map("in_france")
   inEurope    Boolean? @map("in_europe")
 
-  biliographies  BibliographySpecies[]
+  bibliographies  BibliographySpecies[]
   eurobatraitData      EurobatraitData?
   anageData            AnageData?
 
@@ -74,7 +74,6 @@ model BibliographySpecies {
   species        Species      @relation(fields: [speciesId], references: [id], onDelete: Cascade)
 
   // Données démographiques spécifiques à cette combinaison Bibliography+Species
-  numberAgeGroup      NumberAgeGroup?
   ageGroups           AgeGroup[]
   dispersalDistances  DispersalDistance[]
 
@@ -85,26 +84,6 @@ model BibliographySpecies {
 // ============================================
 // HIÉRARCHIE DES DONNÉES DÉMOGRAPHIQUES
 // ============================================
-
-model NumberAgeGroup {
-  id                Int     @id @default(autoincrement())
-  numberOfAgeGroups Int?    @map("number_of_age_groups")
-
-  /*
-  Lecture correcte :
-  👉 Quand BibliographySpecies (parent) est supprimé
-  👉 Alors NumberAgeGroup (enfant) est supprimé en cascade
-  👉 Une combinaison BibliographySpecies ne peut avoir qu'UN SEUL NumberAgeGroup (one-to-one)
-
-  PAS dans l'autre sens :
-  ❌ Quand NumberAgeGroup est supprimé
-  ❌ BibliographySpecies reste intact
-  */
-  bibliographySpeciesId Int?                  @unique @map("bibliography_species_id")
-  bibliographySpecies   BibliographySpecies? @relation(fields: [bibliographySpeciesId], references: [id], onDelete: Cascade)
-
-  @@map("number_age_groups")
-}
 
 model AgeGroup {
   id           Int     @id @default(autoincrement())
@@ -143,6 +122,9 @@ model Survival {
   ageGroupId Int?      @map("age_group_id")
   ageGroupRef AgeGroup? @relation(fields: [ageGroupId], references: [id], onDelete: Cascade)
 
+  // Relation many-to-many avec ConfidenceRate
+  confidenceRates SurvivalConfidenceRate[]
+
   @@map("survival")
 }
 
@@ -153,12 +135,18 @@ model Fecundity {
   minFecundityRate                Decimal? @map("min_fecundity_rate") @db.Decimal
   meanFecundityRate               Decimal? @map("mean_fecundity_rate") @db.Decimal
   maxFecundityRate                Decimal? @map("max_fecundity_rate") @db.Decimal
+  minProductivity                 Decimal? @map("min_productivity") @db.Decimal
+  meanProductivity                Decimal? @map("mean_productivity") @db.Decimal
+  maxProductivity                 Decimal? @map("max_productivity") @db.Decimal
   se                              Decimal? @map("SE") @db.Decimal
   lowCI                           Decimal? @map("low_CI") @db.Decimal
   highCI                          Decimal? @map("high_CI") @db.Decimal
 
   ageGroupId Int?      @map("age_group_id")
   ageGroupRef AgeGroup? @relation(fields: [ageGroupId], references: [id], onDelete: Cascade)
+
+  // Relation many-to-many avec ConfidenceRate
+  confidenceRates FecundityConfidenceRate[]
 
   @@map("fecundity")
 }
@@ -183,8 +171,72 @@ model DispersalDistance {
   bibliographySpeciesId Int?                  @map("bibliography_species_id")
   bibliographySpecies   BibliographySpecies? @relation(fields: [bibliographySpeciesId], references: [id], onDelete: Cascade)
 
+  // Relation many-to-many avec ConfidenceRate
+  confidenceRates DispersalConfidenceRate[]
+
   @@map("dispersal_distance")
 }
+
+// ============================================
+// TABLE DE TAUX DE CONFIANCE
+// ============================================
+
+model ConfidenceRate {
+  id          Int      @id @default(autoincrement())
+  se          Decimal? @map("SE") @db.Decimal
+  lowIC       Decimal? @map("low_IC") @db.Decimal
+  highIC      Decimal? @map("high_IC") @db.Decimal
+  dataQuality String?  @map("data_quality") @db.VarChar(255)
+
+  // Relations many-to-many
+  survivals   SurvivalConfidenceRate[]
+  fecundities FecundityConfidenceRate[]
+  dispersals  DispersalConfidenceRate[]
+
+  @@map("confidence_rate")
+}
+
+// Tables d'association many-to-many
+
+model SurvivalConfidenceRate {
+  id               Int            @id @default(autoincrement())
+  survivalId       Int            @map("survival_id")
+  confidenceRateId Int            @map("confidence_rate_id")
+
+  survival         Survival       @relation(fields: [survivalId], references: [id], onDelete: Cascade)
+  confidenceRate   ConfidenceRate @relation(fields: [confidenceRateId], references: [id], onDelete: Cascade)
+
+  @@unique([survivalId, confidenceRateId])
+  @@map("survival_confidence_rate")
+}
+
+model FecundityConfidenceRate {
+  id               Int            @id @default(autoincrement())
+  fecundityId      Int            @map("fecundity_id")
+  confidenceRateId Int            @map("confidence_rate_id")
+
+  fecundity        Fecundity      @relation(fields: [fecundityId], references: [id], onDelete: Cascade)
+  confidenceRate   ConfidenceRate @relation(fields: [confidenceRateId], references: [id], onDelete: Cascade)
+
+  @@unique([fecundityId, confidenceRateId])
+  @@map("fecundity_confidence_rate")
+}
+
+model DispersalConfidenceRate {
+  id               Int              @id @default(autoincrement())
+  dispersalId      Int              @map("dispersal_id")
+  confidenceRateId Int              @map("confidence_rate_id")
+
+  dispersal        DispersalDistance @relation(fields: [dispersalId], references: [id], onDelete: Cascade)
+  confidenceRate   ConfidenceRate    @relation(fields: [confidenceRateId], references: [id], onDelete: Cascade)
+
+  @@unique([dispersalId, confidenceRateId])
+  @@map("dispersal_confidence_rate")
+}
+
+// ============================================
+// DONNÉES EXTERNES (EuroBaTraits, AnAge)
+// ============================================
 
 model EurobatraitData {
   id                                       Int      @id @default(autoincrement())

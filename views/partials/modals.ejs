@@ -15,17 +15,20 @@
           <div class="row">
             <div class="col-md-6 mb-3">
               <label for="speciesFr" class="form-label">Nom français</label>
-              <input type="text" class="form-control" id="speciesFr" placeholder="Nom français">
+              <input type="text" class="form-control" id="speciesFr" placeholder="ex: pipistrelle_commune" pattern="^[a-z]+(_[a-z]+)*$" title="Format snake_case requis (ex: pipistrelle_commune)">
+              <div class="form-text">Format snake_case (ex: pipistrelle_commune)</div>
             </div>
             <div class="col-md-6 mb-3">
               <label for="speciesLat" class="form-label">Nom latin *</label>
-              <input type="text" class="form-control" id="speciesLat" placeholder="Nom latin" required>
+              <input type="text" class="form-control" id="speciesLat" placeholder="ex: pipistrellus_pipistrellus" pattern="^[a-z]+(_[a-z]+)*$" title="Format snake_case requis (ex: pipistrellus_pipistrellus)" required>
+              <div class="form-text">Format snake_case (ex: pipistrellus_pipistrellus)</div>
             </div>
           </div>
           <div class="row">
             <div class="col-md-6 mb-3">
               <label for="speciesEn" class="form-label">Nom anglais</label>
-              <input type="text" class="form-control" id="speciesEn" placeholder="Nom anglais">
+              <input type="text" class="form-control" id="speciesEn" placeholder="ex: common_pipistrelle" pattern="^[a-z]+(_[a-z]+)*$" title="Format snake_case requis (ex: common_pipistrelle)">
+              <div class="form-text">Format snake_case (ex: common_pipistrelle)</div>
             </div>
             <div class="col-md-6 mb-3">
               <label for="family" class="form-label">Famille</label>
@@ -199,37 +202,6 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
         <button type="button" class="btn btn-success" id="saveBibliographyBtn">
-          <i class="bi bi-save"></i> Enregistrer
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL NUMBER AGE GROUP -->
-<div class="modal fade" id="numberAgeGroupModal" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">
-          <i class="bi bi-list-ol"></i>
-          <span id="numberAgeGroupModalTitle">Créer un nombre de groupes d'âge</span>
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <form id="numberAgeGroupForm">
-          <input type="hidden" id="numberAgeGroupId">
-          <div class="mb-3">
-            <label for="numberOfAgeGroups" class="form-label">Nombre de groupes d'âge *</label>
-            <input type="number" class="form-control" id="numberOfAgeGroups" required min="1" placeholder="Nombre de groupes d'âge">
-            <div class="form-text">Indiquez combien de groupes d'âge sont utilisés dans cette étude</div>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-        <button type="button" class="btn btn-success" id="saveNumberAgeGroupBtn">
           <i class="bi bi-save"></i> Enregistrer
         </button>
       </div>
@@ -414,6 +386,22 @@
             </div>
           </div>
 
+          <h6 class="border-bottom pb-2 mb-3">Productivité</h6>
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label for="minProductivity" class="form-label">Min</label>
+              <input type="number" step="0.0001" class="form-control" id="minProductivity" placeholder="Minimum">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="meanProductivity" class="form-label">Moyenne</label>
+              <input type="number" step="0.0001" class="form-control" id="meanProductivity" placeholder="Moyenne">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="maxProductivity" class="form-label">Max</label>
+              <input type="number" step="0.0001" class="form-control" id="maxProductivity" placeholder="Maximum">
+            </div>
+          </div>
+
           <h6 class="border-bottom pb-2 mb-3">Intervalles de confiance</h6>
           <div class="row">
             <div class="col-md-4 mb-3">
@@ -456,7 +444,7 @@
         <form id="dispersalForm">
           <input type="hidden" id="dispersalId">
 
-          <h6 class="border-bottom pb-2 mb-3">Distance de dispersion (mètres)</h6>
+          <h6 class="border-bottom pb-2 mb-3">Distance de dispersion (km)</h6>
           <div class="row">
             <div class="col-md-4 mb-3">
               <label for="minDispersalDistance" class="form-label">Min</label>
@@ -492,6 +480,61 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
         <button type="button" class="btn btn-success" id="saveDispersalBtn">
+          <i class="bi bi-save"></i> Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONFIDENCE RATE (Taux de confiance) -->
+<div class="modal fade" id="confidenceRateModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-graph-up"></i>
+          <span id="confidenceRateModalTitle">Ajouter un taux de confiance</span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="confidenceRateForm">
+          <input type="hidden" id="confidenceRateId">
+          <input type="hidden" id="confidenceRateEntityType">
+          <input type="hidden" id="confidenceRateEntityId">
+
+          <h6 class="border-bottom pb-2 mb-3">Intervalles de confiance</h6>
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label for="confidenceRateSE" class="form-label">SE (Erreur standard)</label>
+              <input type="number" step="0.0001" class="form-control" id="confidenceRateSE" placeholder="SE">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="confidenceRateLowIC" class="form-label">Low IC</label>
+              <input type="number" step="0.0001" class="form-control" id="confidenceRateLowIC" placeholder="IC bas">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="confidenceRateHighIC" class="form-label">High IC</label>
+              <input type="number" step="0.0001" class="form-control" id="confidenceRateHighIC" placeholder="IC haut">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="confidenceRateDataQuality" class="form-label">Qualit&eacute; des donn&eacute;es</label>
+            <select class="form-select" id="confidenceRateDataQuality">
+              <option value="">-- S&eacute;lectionner --</option>
+              <option value="high">Haute</option>
+              <option value="medium">Moyenne</option>
+              <option value="low">Basse</option>
+              <option value="unknown">Inconnue</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-success" id="saveConfidenceRateBtn">
           <i class="bi bi-save"></i> Enregistrer
         </button>
       </div>

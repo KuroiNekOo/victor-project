@@ -11,20 +11,16 @@ export const speciesService = {
     return await prisma.species.findUnique({
       where: { id: parseInt(id) },
       include: {
-        dispersalDistance: true,
-        numberAgeGroups: {
+        bibliographies: {
           include: {
+            bibliography: true,
             ageGroups: {
               include: {
                 survivals: true,
                 fecundities: true
               }
-            }
-          }
-        },
-        biliographies: {
-          include: {
-            bibliography: true
+            },
+            dispersalDistances: true
           }
         }
       }
