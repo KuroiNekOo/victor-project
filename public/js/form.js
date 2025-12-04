@@ -95,10 +95,10 @@ async function loadSurvivalData(ageGroupId) {
           <p class="mb-0"><small class="text-muted">Longévité moyenne: ${s.meanLongevityYears || 'N/A'} ans</small></p>
         </div>
         <div class="btn-group-vertical btn-group-sm">
-          <button class="btn btn-outline-primary" onclick="editSurvival(${s.id})">
+          <button type="button" class="btn btn-outline-primary" onclick="editSurvival(${s.id})">
             <i class="bi bi-pencil"></i>
           </button>
-          <button class="btn btn-outline-danger" onclick="deleteSurvival(${s.id})">
+          <button type="button" class="btn btn-outline-danger" onclick="deleteSurvival(${s.id})">
             <i class="bi bi-trash"></i>
           </button>
         </div>
@@ -129,10 +129,10 @@ async function loadFecundityData(ageGroupId) {
           <p class="mb-0"><small class="text-muted">${f.ageGroupConsideredInPublication || ''}</small></p>
         </div>
         <div class="btn-group-vertical btn-group-sm">
-          <button class="btn btn-outline-primary" onclick="editFecundity(${f.id})">
+          <button type="button" class="btn btn-outline-primary" onclick="editFecundity(${f.id})">
             <i class="bi bi-pencil"></i>
           </button>
-          <button class="btn btn-outline-danger" onclick="deleteFecundity(${f.id})">
+          <button type="button" class="btn btn-outline-danger" onclick="deleteFecundity(${f.id})">
             <i class="bi bi-trash"></i>
           </button>
         </div>
