@@ -87,7 +87,7 @@ model BibliographySpecies {
 
 model AgeGroup {
   id           Int     @id @default(autoincrement())
-  ageGroup     Int?    @map("age_group")
+  ageGroup     String? @map("age_group") @db.VarChar(255)
   consideredAs String? @map("considered_as") @db.VarChar(255)
 
   /*
@@ -105,9 +105,11 @@ model AgeGroup {
 
 model Survival {
   id                              Int      @id @default(autoincrement())
-  ageGroup                        Int?     @map("age_group")
+  ageGroup                        String?  @map("age_group") @db.VarChar(255)
   ageGroupConsideredInPublication String?  @map("age_group_considered_in_the_publication") @db.VarChar(255)
   sex                             String?  @db.VarChar(50)
+
+  // Champs principaux
   minSurvivalRate                 Decimal? @map("min_survival_rate") @db.Decimal
   meanSurvivalRate                Decimal? @map("mean_survival_rate") @db.Decimal
   maxSurvivalRate                 Decimal? @map("max_survival_rate") @db.Decimal
@@ -115,38 +117,106 @@ model Survival {
   minLongevityYears               Decimal? @map("min_longevity_years") @db.Decimal
   meanLongevityYears              Decimal? @map("mean_longevity_years") @db.Decimal
   maxLongevityYears               Decimal? @map("max_longevity_years") @db.Decimal
-  se                              Decimal? @map("SE") @db.Decimal
-  lowCI                           Decimal? @map("low_CI") @db.Decimal
-  highCI                          Decimal? @map("high_CI") @db.Decimal
+
+  // Données de confiance pour minSurvivalRate
+  minSurvivalRateSe               Decimal? @map("min_survival_rate_se") @db.Decimal
+  minSurvivalRateLowCI            Decimal? @map("min_survival_rate_low_ci") @db.Decimal
+  minSurvivalRateHighCI           Decimal? @map("min_survival_rate_high_ci") @db.Decimal
+  minSurvivalRateDataQuality      String?  @map("min_survival_rate_data_quality") @db.VarChar(255)
+
+  // Données de confiance pour meanSurvivalRate
+  meanSurvivalRateSe              Decimal? @map("mean_survival_rate_se") @db.Decimal
+  meanSurvivalRateLowCI           Decimal? @map("mean_survival_rate_low_ci") @db.Decimal
+  meanSurvivalRateHighCI          Decimal? @map("mean_survival_rate_high_ci") @db.Decimal
+  meanSurvivalRateDataQuality     String?  @map("mean_survival_rate_data_quality") @db.VarChar(255)
+
+  // Données de confiance pour maxSurvivalRate
+  maxSurvivalRateSe               Decimal? @map("max_survival_rate_se") @db.Decimal
+  maxSurvivalRateLowCI            Decimal? @map("max_survival_rate_low_ci") @db.Decimal
+  maxSurvivalRateHighCI           Decimal? @map("max_survival_rate_high_ci") @db.Decimal
+  maxSurvivalRateDataQuality      String?  @map("max_survival_rate_data_quality") @db.VarChar(255)
+
+  // Données de confiance pour recaptureProbability
+  recaptureProbabilitySe          Decimal? @map("recapture_probability_se") @db.Decimal
+  recaptureProbabilityLowCI       Decimal? @map("recapture_probability_low_ci") @db.Decimal
+  recaptureProbabilityHighCI      Decimal? @map("recapture_probability_high_ci") @db.Decimal
+  recaptureProbabilityDataQuality String?  @map("recapture_probability_data_quality") @db.VarChar(255)
+
+  // Données de confiance pour minLongevityYears
+  minLongevityYearsSe             Decimal? @map("min_longevity_years_se") @db.Decimal
+  minLongevityYearsLowCI          Decimal? @map("min_longevity_years_low_ci") @db.Decimal
+  minLongevityYearsHighCI         Decimal? @map("min_longevity_years_high_ci") @db.Decimal
+  minLongevityYearsDataQuality    String?  @map("min_longevity_years_data_quality") @db.VarChar(255)
+
+  // Données de confiance pour meanLongevityYears
+  meanLongevityYearsSe            Decimal? @map("mean_longevity_years_se") @db.Decimal
+  meanLongevityYearsLowCI         Decimal? @map("mean_longevity_years_low_ci") @db.Decimal
+  meanLongevityYearsHighCI        Decimal? @map("mean_longevity_years_high_ci") @db.Decimal
+  meanLongevityYearsDataQuality   String?  @map("mean_longevity_years_data_quality") @db.VarChar(255)
+
+  // Données de confiance pour maxLongevityYears
+  maxLongevityYearsSe             Decimal? @map("max_longevity_years_se") @db.Decimal
+  maxLongevityYearsLowCI          Decimal? @map("max_longevity_years_low_ci") @db.Decimal
+  maxLongevityYearsHighCI         Decimal? @map("max_longevity_years_high_ci") @db.Decimal
+  maxLongevityYearsDataQuality    String?  @map("max_longevity_years_data_quality") @db.VarChar(255)
 
   ageGroupId Int?      @map("age_group_id")
   ageGroupRef AgeGroup? @relation(fields: [ageGroupId], references: [id], onDelete: Cascade)
-
-  // Relation many-to-many avec ConfidenceRate
-  confidenceRates SurvivalConfidenceRate[]
 
   @@map("survival")
 }
 
 model Fecundity {
   id                              Int      @id @default(autoincrement())
-  ageGroup                        Int?     @map("age_group")
+  ageGroup                        String?  @map("age_group") @db.VarChar(255)
   ageGroupConsideredInPublication String?  @map("age_group_considered_in_the_publication") @db.VarChar(255)
+
+  // Champs principaux
   minFecundityRate                Decimal? @map("min_fecundity_rate") @db.Decimal
   meanFecundityRate               Decimal? @map("mean_fecundity_rate") @db.Decimal
   maxFecundityRate                Decimal? @map("max_fecundity_rate") @db.Decimal
   minProductivity                 Decimal? @map("min_productivity") @db.Decimal
   meanProductivity                Decimal? @map("mean_productivity") @db.Decimal
   maxProductivity                 Decimal? @map("max_productivity") @db.Decimal
-  se                              Decimal? @map("SE") @db.Decimal
-  lowCI                           Decimal? @map("low_CI") @db.Decimal
-  highCI                          Decimal? @map("high_CI") @db.Decimal
+
+  // Données de confiance pour minFecundityRate
+  minFecundityRateSe              Decimal? @map("min_fecundity_rate_se") @db.Decimal
+  minFecundityRateLowCI           Decimal? @map("min_fecundity_rate_low_ci") @db.Decimal
+  minFecundityRateHighCI          Decimal? @map("min_fecundity_rate_high_ci") @db.Decimal
+  minFecundityRateDataQuality     String?  @map("min_fecundity_rate_data_quality") @db.VarChar(255)
+
+  // Données de confiance pour meanFecundityRate
+  meanFecundityRateSe             Decimal? @map("mean_fecundity_rate_se") @db.Decimal
+  meanFecundityRateLowCI          Decimal? @map("mean_fecundity_rate_low_ci") @db.Decimal
+  meanFecundityRateHighCI         Decimal? @map("mean_fecundity_rate_high_ci") @db.Decimal
+  meanFecundityRateDataQuality    String?  @map("mean_fecundity_rate_data_quality") @db.VarChar(255)
+
+  // Données de confiance pour maxFecundityRate
+  maxFecundityRateSe              Decimal? @map("max_fecundity_rate_se") @db.Decimal
+  maxFecundityRateLowCI           Decimal? @map("max_fecundity_rate_low_ci") @db.Decimal
+  maxFecundityRateHighCI          Decimal? @map("max_fecundity_rate_high_ci") @db.Decimal
+  maxFecundityRateDataQuality     String?  @map("max_fecundity_rate_data_quality") @db.VarChar(255)
+
+  // Données de confiance pour minProductivity
+  minProductivitySe               Decimal? @map("min_productivity_se") @db.Decimal
+  minProductivityLowCI            Decimal? @map("min_productivity_low_ci") @db.Decimal
+  minProductivityHighCI           Decimal? @map("min_productivity_high_ci") @db.Decimal
+  minProductivityDataQuality      String?  @map("min_productivity_data_quality") @db.VarChar(255)
+
+  // Données de confiance pour meanProductivity
+  meanProductivitySe              Decimal? @map("mean_productivity_se") @db.Decimal
+  meanProductivityLowCI           Decimal? @map("mean_productivity_low_ci") @db.Decimal
+  meanProductivityHighCI          Decimal? @map("mean_productivity_high_ci") @db.Decimal
+  meanProductivityDataQuality     String?  @map("mean_productivity_data_quality") @db.VarChar(255)
+
+  // Données de confiance pour maxProductivity
+  maxProductivitySe               Decimal? @map("max_productivity_se") @db.Decimal
+  maxProductivityLowCI            Decimal? @map("max_productivity_low_ci") @db.Decimal
+  maxProductivityHighCI           Decimal? @map("max_productivity_high_ci") @db.Decimal
+  maxProductivityDataQuality      String?  @map("max_productivity_data_quality") @db.VarChar(255)
 
   ageGroupId Int?      @map("age_group_id")
   ageGroupRef AgeGroup? @relation(fields: [ageGroupId], references: [id], onDelete: Cascade)
-
-  // Relation many-to-many avec ConfidenceRate
-  confidenceRates FecundityConfidenceRate[]
 
   @@map("fecundity")
 }
@@ -157,12 +227,29 @@ model Fecundity {
 
 model DispersalDistance {
   id                    Int      @id @default(autoincrement())
+
+  // Champs principaux
   meanDispersalDistance Decimal? @map("mean_dispersal_distance") @db.Decimal
   minDispersalDistance  Decimal? @map("min_dispersal_distance") @db.Decimal
   maxDispersalDistance  Decimal? @map("max_dispersal_distance") @db.Decimal
-  se                    Decimal? @map("SE") @db.Decimal
-  lowCI                 Decimal? @map("low_CI") @db.Decimal
-  highCI                Decimal? @map("high_CI") @db.Decimal
+
+  // Données de confiance pour meanDispersalDistance
+  meanDispersalDistanceSe           Decimal? @map("mean_dispersal_distance_se") @db.Decimal
+  meanDispersalDistanceLowCI        Decimal? @map("mean_dispersal_distance_low_ci") @db.Decimal
+  meanDispersalDistanceHighCI       Decimal? @map("mean_dispersal_distance_high_ci") @db.Decimal
+  meanDispersalDistanceDataQuality  String?  @map("mean_dispersal_distance_data_quality") @db.VarChar(255)
+
+  // Données de confiance pour minDispersalDistance
+  minDispersalDistanceSe            Decimal? @map("min_dispersal_distance_se") @db.Decimal
+  minDispersalDistanceLowCI         Decimal? @map("min_dispersal_distance_low_ci") @db.Decimal
+  minDispersalDistanceHighCI        Decimal? @map("min_dispersal_distance_high_ci") @db.Decimal
+  minDispersalDistanceDataQuality   String?  @map("min_dispersal_distance_data_quality") @db.VarChar(255)
+
+  // Données de confiance pour maxDispersalDistance
+  maxDispersalDistanceSe            Decimal? @map("max_dispersal_distance_se") @db.Decimal
+  maxDispersalDistanceLowCI         Decimal? @map("max_dispersal_distance_low_ci") @db.Decimal
+  maxDispersalDistanceHighCI        Decimal? @map("max_dispersal_distance_high_ci") @db.Decimal
+  maxDispersalDistanceDataQuality   String?  @map("max_dispersal_distance_data_quality") @db.VarChar(255)
 
   /*
   Lié à BibliographySpecies
@@ -171,67 +258,7 @@ model DispersalDistance {
   bibliographySpeciesId Int?                  @map("bibliography_species_id")
   bibliographySpecies   BibliographySpecies? @relation(fields: [bibliographySpeciesId], references: [id], onDelete: Cascade)
 
-  // Relation many-to-many avec ConfidenceRate
-  confidenceRates DispersalConfidenceRate[]
-
   @@map("dispersal_distance")
-}
-
-// ============================================
-// TABLE DE TAUX DE CONFIANCE
-// ============================================
-
-model ConfidenceRate {
-  id          Int      @id @default(autoincrement())
-  se          Decimal? @map("SE") @db.Decimal
-  lowIC       Decimal? @map("low_IC") @db.Decimal
-  highIC      Decimal? @map("high_IC") @db.Decimal
-  dataQuality String?  @map("data_quality") @db.VarChar(255)
-
-  // Relations many-to-many
-  survivals   SurvivalConfidenceRate[]
-  fecundities FecundityConfidenceRate[]
-  dispersals  DispersalConfidenceRate[]
-
-  @@map("confidence_rate")
-}
-
-// Tables d'association many-to-many
-
-model SurvivalConfidenceRate {
-  id               Int            @id @default(autoincrement())
-  survivalId       Int            @map("survival_id")
-  confidenceRateId Int            @map("confidence_rate_id")
-
-  survival         Survival       @relation(fields: [survivalId], references: [id], onDelete: Cascade)
-  confidenceRate   ConfidenceRate @relation(fields: [confidenceRateId], references: [id], onDelete: Cascade)
-
-  @@unique([survivalId, confidenceRateId])
-  @@map("survival_confidence_rate")
-}
-
-model FecundityConfidenceRate {
-  id               Int            @id @default(autoincrement())
-  fecundityId      Int            @map("fecundity_id")
-  confidenceRateId Int            @map("confidence_rate_id")
-
-  fecundity        Fecundity      @relation(fields: [fecundityId], references: [id], onDelete: Cascade)
-  confidenceRate   ConfidenceRate @relation(fields: [confidenceRateId], references: [id], onDelete: Cascade)
-
-  @@unique([fecundityId, confidenceRateId])
-  @@map("fecundity_confidence_rate")
-}
-
-model DispersalConfidenceRate {
-  id               Int              @id @default(autoincrement())
-  dispersalId      Int              @map("dispersal_id")
-  confidenceRateId Int              @map("confidence_rate_id")
-
-  dispersal        DispersalDistance @relation(fields: [dispersalId], references: [id], onDelete: Cascade)
-  confidenceRate   ConfidenceRate    @relation(fields: [confidenceRateId], references: [id], onDelete: Cascade)
-
-  @@unique([dispersalId, confidenceRateId])
-  @@map("dispersal_confidence_rate")
 }
 
 // ============================================

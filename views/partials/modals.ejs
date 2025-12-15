@@ -14,8 +14,8 @@
           <input type="hidden" id="speciesId">
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label for="speciesFr" class="form-label">Nom français</label>
-              <input type="text" class="form-control" id="speciesFr" placeholder="ex: pipistrelle_commune" pattern="^[a-z]+(_[a-z]+)*$" title="Format snake_case requis (ex: pipistrelle_commune)">
+              <label for="speciesFr" class="form-label">Nom français *</label>
+              <input type="text" class="form-control" id="speciesFr" placeholder="ex: pipistrelle_commune" pattern="^[a-z]+(_[a-z]+)*$" title="Format snake_case requis (ex: pipistrelle_commune)" required>
               <div class="form-text">Format snake_case (ex: pipistrelle_commune)</div>
             </div>
             <div class="col-md-6 mb-3">
@@ -224,9 +224,8 @@
         <form id="ageGroupForm">
           <input type="hidden" id="ageGroupId">
           <div class="mb-3">
-            <label for="ageGroup" class="form-label">Groupe d'âge (numéro)</label>
-            <input type="number" class="form-control" id="ageGroup" min="0" placeholder="Numéro du groupe">
-            <div class="form-text">Ex: 0, 1, 2, 3...</div>
+            <label for="ageGroup" class="form-label">Groupe d'âge</label>
+            <input type="text" class="form-control" id="ageGroup" placeholder="Groupe d'âge">
           </div>
           <div class="mb-3">
             <label for="consideredAs" class="form-label">Considéré comme</label>
@@ -246,7 +245,7 @@
 
 <!-- MODAL SURVIVAL -->
 <div class="modal fade" id="survivalModal" tabindex="-1">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog modal-xl">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">
@@ -255,14 +254,14 @@
         </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
         <form id="survivalForm">
           <input type="hidden" id="survivalId">
 
           <div class="row">
             <div class="col-md-6 mb-3">
               <label for="survivalAgeGroup" class="form-label">Groupe d'âge</label>
-              <input type="number" class="form-control" id="survivalAgeGroup" placeholder="Groupe d'âge">
+              <input type="text" class="form-control" id="survivalAgeGroup" placeholder="Groupe d'âge">
             </div>
             <div class="col-md-6 mb-3">
               <label for="ageGroupConsideredSurvival" class="form-label">Considéré dans la publication</label>
@@ -317,20 +316,126 @@
             </div>
           </div>
 
-          <h6 class="border-bottom pb-2 mb-3">Intervalles de confiance</h6>
-          <div class="row">
-            <div class="col-md-4 mb-3">
-              <label for="survivalSE" class="form-label">SE</label>
-              <input type="number" step="0.0001" class="form-control" id="survivalSE" placeholder="SE">
-            </div>
-            <div class="col-md-4 mb-3">
-              <label for="survivalLowCI" class="form-label">Low CI</label>
-              <input type="number" step="0.0001" class="form-control" id="survivalLowCI" placeholder="Low CI">
-            </div>
-            <div class="col-md-4 mb-3">
-              <label for="survivalHighCI" class="form-label">High CI</label>
-              <input type="number" step="0.0001" class="form-control" id="survivalHighCI" placeholder="High CI">
-            </div>
+          <h6 class="border-bottom pb-2 mb-3 mt-4">Données de confiance par champ</h6>
+          <div class="table-responsive">
+            <table class="table table-sm table-bordered">
+              <thead class="table-light">
+                <tr>
+                  <th>Champ</th>
+                  <th>SE</th>
+                  <th>Low CI</th>
+                  <th>High CI</th>
+                  <th>Data Quality</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Min Survival Rate</strong></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="minSurvivalRateSe" placeholder="SE"></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="minSurvivalRateLowCI" placeholder="Low CI"></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="minSurvivalRateHighCI" placeholder="High CI"></td>
+                  <td>
+                    <select class="form-select form-select-sm" id="minSurvivalRateDataQuality">
+                      <option value="">--</option>
+                      <option value="low">low</option>
+                      <option value="questionnable">questionnable</option>
+                      <option value="acceptable">acceptable</option>
+                      <option value="high">high</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Mean Survival Rate</strong></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="meanSurvivalRateSe" placeholder="SE"></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="meanSurvivalRateLowCI" placeholder="Low CI"></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="meanSurvivalRateHighCI" placeholder="High CI"></td>
+                  <td>
+                    <select class="form-select form-select-sm" id="meanSurvivalRateDataQuality">
+                      <option value="">--</option>
+                      <option value="low">low</option>
+                      <option value="questionnable">questionnable</option>
+                      <option value="acceptable">acceptable</option>
+                      <option value="high">high</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Max Survival Rate</strong></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="maxSurvivalRateSe" placeholder="SE"></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="maxSurvivalRateLowCI" placeholder="Low CI"></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="maxSurvivalRateHighCI" placeholder="High CI"></td>
+                  <td>
+                    <select class="form-select form-select-sm" id="maxSurvivalRateDataQuality">
+                      <option value="">--</option>
+                      <option value="low">low</option>
+                      <option value="questionnable">questionnable</option>
+                      <option value="acceptable">acceptable</option>
+                      <option value="high">high</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Recapture Probability</strong></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="recaptureProbabilitySe" placeholder="SE"></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="recaptureProbabilityLowCI" placeholder="Low CI"></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="recaptureProbabilityHighCI" placeholder="High CI"></td>
+                  <td>
+                    <select class="form-select form-select-sm" id="recaptureProbabilityDataQuality">
+                      <option value="">--</option>
+                      <option value="low">low</option>
+                      <option value="questionnable">questionnable</option>
+                      <option value="acceptable">acceptable</option>
+                      <option value="high">high</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Min Longevity Years</strong></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="minLongevityYearsSe" placeholder="SE"></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="minLongevityYearsLowCI" placeholder="Low CI"></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="minLongevityYearsHighCI" placeholder="High CI"></td>
+                  <td>
+                    <select class="form-select form-select-sm" id="minLongevityYearsDataQuality">
+                      <option value="">--</option>
+                      <option value="low">low</option>
+                      <option value="questionnable">questionnable</option>
+                      <option value="acceptable">acceptable</option>
+                      <option value="high">high</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Mean Longevity Years</strong></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="meanLongevityYearsSe" placeholder="SE"></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="meanLongevityYearsLowCI" placeholder="Low CI"></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="meanLongevityYearsHighCI" placeholder="High CI"></td>
+                  <td>
+                    <select class="form-select form-select-sm" id="meanLongevityYearsDataQuality">
+                      <option value="">--</option>
+                      <option value="low">low</option>
+                      <option value="questionnable">questionnable</option>
+                      <option value="acceptable">acceptable</option>
+                      <option value="high">high</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Max Longevity Years</strong></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="maxLongevityYearsSe" placeholder="SE"></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="maxLongevityYearsLowCI" placeholder="Low CI"></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="maxLongevityYearsHighCI" placeholder="High CI"></td>
+                  <td>
+                    <select class="form-select form-select-sm" id="maxLongevityYearsDataQuality">
+                      <option value="">--</option>
+                      <option value="low">low</option>
+                      <option value="questionnable">questionnable</option>
+                      <option value="acceptable">acceptable</option>
+                      <option value="high">high</option>
+                    </select>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </form>
       </div>
@@ -346,7 +451,7 @@
 
 <!-- MODAL FECUNDITY -->
 <div class="modal fade" id="fecundityModal" tabindex="-1">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog modal-xl">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">
@@ -355,14 +460,14 @@
         </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
         <form id="fecundityForm">
           <input type="hidden" id="fecundityId">
 
           <div class="row">
             <div class="col-md-6 mb-3">
               <label for="fecundityAgeGroup" class="form-label">Groupe d'âge</label>
-              <input type="number" class="form-control" id="fecundityAgeGroup" placeholder="Groupe d'âge">
+              <input type="text" class="form-control" id="fecundityAgeGroup" placeholder="Groupe d'âge">
             </div>
             <div class="col-md-6 mb-3">
               <label for="ageGroupConsideredFecundity" class="form-label">Considéré dans la publication</label>
@@ -402,20 +507,111 @@
             </div>
           </div>
 
-          <h6 class="border-bottom pb-2 mb-3">Intervalles de confiance</h6>
-          <div class="row">
-            <div class="col-md-4 mb-3">
-              <label for="fecunditySE" class="form-label">SE</label>
-              <input type="number" step="0.0001" class="form-control" id="fecunditySE" placeholder="SE">
-            </div>
-            <div class="col-md-4 mb-3">
-              <label for="fecundityLowCI" class="form-label">Low CI</label>
-              <input type="number" step="0.0001" class="form-control" id="fecundityLowCI" placeholder="Low CI">
-            </div>
-            <div class="col-md-4 mb-3">
-              <label for="fecundityHighCI" class="form-label">High CI</label>
-              <input type="number" step="0.0001" class="form-control" id="fecundityHighCI" placeholder="High CI">
-            </div>
+          <h6 class="border-bottom pb-2 mb-3 mt-4">Données de confiance par champ</h6>
+          <div class="table-responsive">
+            <table class="table table-sm table-bordered">
+              <thead class="table-light">
+                <tr>
+                  <th>Champ</th>
+                  <th>SE</th>
+                  <th>Low CI</th>
+                  <th>High CI</th>
+                  <th>Data Quality</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Min Fecundity Rate</strong></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="minFecundityRateSe" placeholder="SE"></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="minFecundityRateLowCI" placeholder="Low CI"></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="minFecundityRateHighCI" placeholder="High CI"></td>
+                  <td>
+                    <select class="form-select form-select-sm" id="minFecundityRateDataQuality">
+                      <option value="">--</option>
+                      <option value="low">low</option>
+                      <option value="questionnable">questionnable</option>
+                      <option value="acceptable">acceptable</option>
+                      <option value="high">high</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Mean Fecundity Rate</strong></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="meanFecundityRateSe" placeholder="SE"></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="meanFecundityRateLowCI" placeholder="Low CI"></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="meanFecundityRateHighCI" placeholder="High CI"></td>
+                  <td>
+                    <select class="form-select form-select-sm" id="meanFecundityRateDataQuality">
+                      <option value="">--</option>
+                      <option value="low">low</option>
+                      <option value="questionnable">questionnable</option>
+                      <option value="acceptable">acceptable</option>
+                      <option value="high">high</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Max Fecundity Rate</strong></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="maxFecundityRateSe" placeholder="SE"></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="maxFecundityRateLowCI" placeholder="Low CI"></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="maxFecundityRateHighCI" placeholder="High CI"></td>
+                  <td>
+                    <select class="form-select form-select-sm" id="maxFecundityRateDataQuality">
+                      <option value="">--</option>
+                      <option value="low">low</option>
+                      <option value="questionnable">questionnable</option>
+                      <option value="acceptable">acceptable</option>
+                      <option value="high">high</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Min Productivity</strong></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="minProductivitySe" placeholder="SE"></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="minProductivityLowCI" placeholder="Low CI"></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="minProductivityHighCI" placeholder="High CI"></td>
+                  <td>
+                    <select class="form-select form-select-sm" id="minProductivityDataQuality">
+                      <option value="">--</option>
+                      <option value="low">low</option>
+                      <option value="questionnable">questionnable</option>
+                      <option value="acceptable">acceptable</option>
+                      <option value="high">high</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Mean Productivity</strong></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="meanProductivitySe" placeholder="SE"></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="meanProductivityLowCI" placeholder="Low CI"></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="meanProductivityHighCI" placeholder="High CI"></td>
+                  <td>
+                    <select class="form-select form-select-sm" id="meanProductivityDataQuality">
+                      <option value="">--</option>
+                      <option value="low">low</option>
+                      <option value="questionnable">questionnable</option>
+                      <option value="acceptable">acceptable</option>
+                      <option value="high">high</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Max Productivity</strong></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="maxProductivitySe" placeholder="SE"></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="maxProductivityLowCI" placeholder="Low CI"></td>
+                  <td><input type="number" step="0.0001" class="form-control form-control-sm" id="maxProductivityHighCI" placeholder="High CI"></td>
+                  <td>
+                    <select class="form-select form-select-sm" id="maxProductivityDataQuality">
+                      <option value="">--</option>
+                      <option value="low">low</option>
+                      <option value="questionnable">questionnable</option>
+                      <option value="acceptable">acceptable</option>
+                      <option value="high">high</option>
+                    </select>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </form>
       </div>
@@ -431,7 +627,7 @@
 
 <!-- MODAL DISPERSAL DISTANCE -->
 <div class="modal fade" id="dispersalModal" tabindex="-1">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog modal-xl">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">
@@ -440,7 +636,7 @@
         </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
         <form id="dispersalForm">
           <input type="hidden" id="dispersalId">
 
@@ -460,20 +656,66 @@
             </div>
           </div>
 
-          <h6 class="border-bottom pb-2 mb-3">Intervalles de confiance</h6>
-          <div class="row">
-            <div class="col-md-4 mb-3">
-              <label for="dispersalSE" class="form-label">SE</label>
-              <input type="number" step="0.01" class="form-control" id="dispersalSE" placeholder="SE">
-            </div>
-            <div class="col-md-4 mb-3">
-              <label for="dispersalLowCI" class="form-label">Low CI</label>
-              <input type="number" step="0.01" class="form-control" id="dispersalLowCI" placeholder="Low CI">
-            </div>
-            <div class="col-md-4 mb-3">
-              <label for="dispersalHighCI" class="form-label">High CI</label>
-              <input type="number" step="0.01" class="form-control" id="dispersalHighCI" placeholder="High CI">
-            </div>
+          <h6 class="border-bottom pb-2 mb-3 mt-4">Données de confiance par champ</h6>
+          <div class="table-responsive">
+            <table class="table table-sm table-bordered">
+              <thead class="table-light">
+                <tr>
+                  <th>Champ</th>
+                  <th>SE</th>
+                  <th>Low CI</th>
+                  <th>High CI</th>
+                  <th>Data Quality</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Min Dispersal Distance</strong></td>
+                  <td><input type="number" step="0.01" class="form-control form-control-sm" id="minDispersalDistanceSe" placeholder="SE"></td>
+                  <td><input type="number" step="0.01" class="form-control form-control-sm" id="minDispersalDistanceLowCI" placeholder="Low CI"></td>
+                  <td><input type="number" step="0.01" class="form-control form-control-sm" id="minDispersalDistanceHighCI" placeholder="High CI"></td>
+                  <td>
+                    <select class="form-select form-select-sm" id="minDispersalDistanceDataQuality">
+                      <option value="">--</option>
+                      <option value="low">low</option>
+                      <option value="questionnable">questionnable</option>
+                      <option value="acceptable">acceptable</option>
+                      <option value="high">high</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Mean Dispersal Distance</strong></td>
+                  <td><input type="number" step="0.01" class="form-control form-control-sm" id="meanDispersalDistanceSe" placeholder="SE"></td>
+                  <td><input type="number" step="0.01" class="form-control form-control-sm" id="meanDispersalDistanceLowCI" placeholder="Low CI"></td>
+                  <td><input type="number" step="0.01" class="form-control form-control-sm" id="meanDispersalDistanceHighCI" placeholder="High CI"></td>
+                  <td>
+                    <select class="form-select form-select-sm" id="meanDispersalDistanceDataQuality">
+                      <option value="">--</option>
+                      <option value="low">low</option>
+                      <option value="questionnable">questionnable</option>
+                      <option value="acceptable">acceptable</option>
+                      <option value="high">high</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Max Dispersal Distance</strong></td>
+                  <td><input type="number" step="0.01" class="form-control form-control-sm" id="maxDispersalDistanceSe" placeholder="SE"></td>
+                  <td><input type="number" step="0.01" class="form-control form-control-sm" id="maxDispersalDistanceLowCI" placeholder="Low CI"></td>
+                  <td><input type="number" step="0.01" class="form-control form-control-sm" id="maxDispersalDistanceHighCI" placeholder="High CI"></td>
+                  <td>
+                    <select class="form-select form-select-sm" id="maxDispersalDistanceDataQuality">
+                      <option value="">--</option>
+                      <option value="low">low</option>
+                      <option value="questionnable">questionnable</option>
+                      <option value="acceptable">acceptable</option>
+                      <option value="high">high</option>
+                    </select>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </form>
       </div>
@@ -487,57 +729,3 @@
   </div>
 </div>
 
-<!-- MODAL CONFIDENCE RATE (Taux de confiance) -->
-<div class="modal fade" id="confidenceRateModal" tabindex="-1">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">
-          <i class="bi bi-graph-up"></i>
-          <span id="confidenceRateModalTitle">Ajouter un taux de confiance</span>
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <form id="confidenceRateForm">
-          <input type="hidden" id="confidenceRateId">
-          <input type="hidden" id="confidenceRateEntityType">
-          <input type="hidden" id="confidenceRateEntityId">
-
-          <h6 class="border-bottom pb-2 mb-3">Intervalles de confiance</h6>
-          <div class="row">
-            <div class="col-md-4 mb-3">
-              <label for="confidenceRateSE" class="form-label">SE (Erreur standard)</label>
-              <input type="number" step="0.0001" class="form-control" id="confidenceRateSE" placeholder="SE">
-            </div>
-            <div class="col-md-4 mb-3">
-              <label for="confidenceRateLowIC" class="form-label">Low IC</label>
-              <input type="number" step="0.0001" class="form-control" id="confidenceRateLowIC" placeholder="IC bas">
-            </div>
-            <div class="col-md-4 mb-3">
-              <label for="confidenceRateHighIC" class="form-label">High IC</label>
-              <input type="number" step="0.0001" class="form-control" id="confidenceRateHighIC" placeholder="IC haut">
-            </div>
-          </div>
-
-          <div class="mb-3">
-            <label for="confidenceRateDataQuality" class="form-label">Qualit&eacute; des donn&eacute;es</label>
-            <select class="form-select" id="confidenceRateDataQuality">
-              <option value="">-- S&eacute;lectionner --</option>
-              <option value="high">Haute</option>
-              <option value="medium">Moyenne</option>
-              <option value="low">Basse</option>
-              <option value="unknown">Inconnue</option>
-            </select>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-        <button type="button" class="btn btn-success" id="saveConfidenceRateBtn">
-          <i class="bi bi-save"></i> Enregistrer
-        </button>
-      </div>
-    </div>
-  </div>
-</div>

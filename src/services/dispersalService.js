@@ -45,12 +45,26 @@ export const dispersalService = {
   async create(data) {
     return await prisma.dispersalDistance.create({
       data: {
+        // Champs principaux
         meanDispersalDistance: data.meanDispersalDistance,
         minDispersalDistance: data.minDispersalDistance,
         maxDispersalDistance: data.maxDispersalDistance,
-        se: data.se,
-        lowCI: data.lowCI,
-        highCI: data.highCI,
+        // Données de confiance pour meanDispersalDistance
+        meanDispersalDistanceSe: data.meanDispersalDistanceSe,
+        meanDispersalDistanceLowCI: data.meanDispersalDistanceLowCI,
+        meanDispersalDistanceHighCI: data.meanDispersalDistanceHighCI,
+        meanDispersalDistanceDataQuality: data.meanDispersalDistanceDataQuality,
+        // Données de confiance pour minDispersalDistance
+        minDispersalDistanceSe: data.minDispersalDistanceSe,
+        minDispersalDistanceLowCI: data.minDispersalDistanceLowCI,
+        minDispersalDistanceHighCI: data.minDispersalDistanceHighCI,
+        minDispersalDistanceDataQuality: data.minDispersalDistanceDataQuality,
+        // Données de confiance pour maxDispersalDistance
+        maxDispersalDistanceSe: data.maxDispersalDistanceSe,
+        maxDispersalDistanceLowCI: data.maxDispersalDistanceLowCI,
+        maxDispersalDistanceHighCI: data.maxDispersalDistanceHighCI,
+        maxDispersalDistanceDataQuality: data.maxDispersalDistanceDataQuality,
+        // Relation
         bibliographySpeciesId: data.bibliographySpeciesId ? parseInt(data.bibliographySpeciesId) : null
       }
     });
@@ -60,12 +74,25 @@ export const dispersalService = {
     return await prisma.dispersalDistance.update({
       where: { id: parseInt(id) },
       data: {
+        // Champs principaux
         meanDispersalDistance: data.meanDispersalDistance,
         minDispersalDistance: data.minDispersalDistance,
         maxDispersalDistance: data.maxDispersalDistance,
-        se: data.se,
-        lowCI: data.lowCI,
-        highCI: data.highCI
+        // Données de confiance pour meanDispersalDistance
+        meanDispersalDistanceSe: data.meanDispersalDistanceSe,
+        meanDispersalDistanceLowCI: data.meanDispersalDistanceLowCI,
+        meanDispersalDistanceHighCI: data.meanDispersalDistanceHighCI,
+        meanDispersalDistanceDataQuality: data.meanDispersalDistanceDataQuality,
+        // Données de confiance pour minDispersalDistance
+        minDispersalDistanceSe: data.minDispersalDistanceSe,
+        minDispersalDistanceLowCI: data.minDispersalDistanceLowCI,
+        minDispersalDistanceHighCI: data.minDispersalDistanceHighCI,
+        minDispersalDistanceDataQuality: data.minDispersalDistanceDataQuality,
+        // Données de confiance pour maxDispersalDistance
+        maxDispersalDistanceSe: data.maxDispersalDistanceSe,
+        maxDispersalDistanceLowCI: data.maxDispersalDistanceLowCI,
+        maxDispersalDistanceHighCI: data.maxDispersalDistanceHighCI,
+        maxDispersalDistanceDataQuality: data.maxDispersalDistanceDataQuality
       }
     });
   },

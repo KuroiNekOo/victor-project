@@ -5,7 +5,6 @@ import ageGroupRoutes from './ageGroupRoutes.js';
 import survivalRoutes from './survivalRoutes.js';
 import fecundityRoutes from './fecundityRoutes.js';
 import dispersalRoutes from './dispersalRoutes.js';
-import confidenceRateRoutes from './confidenceRateRoutes.js';
 
 const router = express.Router();
 
@@ -16,6 +15,5 @@ router.use('/age-groups', ageGroupRoutes);
 router.use('/survivals', survivalRoutes);
 router.use('/fecundities', fecundityRoutes);
 router.use('/dispersals', dispersalRoutes);
-router.use('/confidence-rates', confidenceRateRoutes);
 
 export default router;

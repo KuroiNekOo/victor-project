@@ -24,10 +24,10 @@ async function loadSpecies() {
   const select = document.getElementById('speciesSelect');
 
   select.innerHTML = '<option value="">-- Choisir une espèce --</option>';
-  species.forEach(s => {
+  species.filter(s => s.speciesLat && s.speciesFr).forEach(s => {
     const option = document.createElement('option');
     option.value = s.id;
-    option.textContent = `${s.speciesFr || s.speciesLat} (${s.speciesLat})`;
+    option.textContent = `${s.speciesLat} (${s.speciesFr})`;
     select.appendChild(option);
   });
 }
@@ -37,10 +37,10 @@ async function loadSpeciesForBibliography() {
   const select = document.getElementById('bibliographySpeciesSelect');
 
   select.innerHTML = '';
-  species.forEach(s => {
+  species.filter(s => s.speciesLat && s.speciesFr).forEach(s => {
     const option = document.createElement('option');
     option.value = s.id;
-    option.textContent = `${s.speciesFr || s.speciesLat} (${s.speciesLat})`;
+    option.textContent = `${s.speciesLat} (${s.speciesFr})`;
     select.appendChild(option);
   });
 }
@@ -69,7 +69,7 @@ async function loadAgeGroups(bibliographyId, speciesId) {
   groups.forEach(g => {
     const option = document.createElement('option');
     option.value = g.id;
-    option.textContent = `Groupe ${g.ageGroup} - ${g.consideredAs || 'Non spécifié'}`;
+    option.textContent = `Groupe ${g.ageGroup ?? 'N/A'} - ${g.consideredAs || 'Non spécifié'}`;
     select.appendChild(option);
   });
 
@@ -90,7 +90,7 @@ async function loadSurvivalData(ageGroupId) {
       item.className = 'list-group-item d-flex justify-content-between align-items-start';
       item.innerHTML = `
         <div class="flex-grow-1">
-          <h6 class="mb-1">Groupe d'âge ${s.ageGroup} - ${s.sex || 'Non spécifié'}</h6>
+          <h6 class="mb-1">Groupe d'âge ${s.ageGroup ?? 'N/A'} - ${s.sex || 'Non spécifié'}</h6>
           <p class="mb-1"><strong>Taux de survie:</strong> ${s.meanSurvivalRate || 'N/A'} (${s.minSurvivalRate || 'N/A'} - ${s.maxSurvivalRate || 'N/A'})</p>
           <p class="mb-0"><small class="text-muted">Longévité moyenne: ${s.meanLongevityYears || 'N/A'} ans</small></p>
         </div>
@@ -124,7 +124,7 @@ async function loadFecundityData(ageGroupId) {
       item.className = 'list-group-item d-flex justify-content-between align-items-start';
       item.innerHTML = `
         <div class="flex-grow-1">
-          <h6 class="mb-1">Groupe d'âge ${f.ageGroup}</h6>
+          <h6 class="mb-1">Groupe d'âge ${f.ageGroup ?? 'N/A'}</h6>
           <p class="mb-1"><strong>Taux de fécondité:</strong> ${f.meanFecundityRate || 'N/A'} (${f.minFecundityRate || 'N/A'} - ${f.maxFecundityRate || 'N/A'})</p>
           <p class="mb-0"><small class="text-muted">${f.ageGroupConsideredInPublication || ''}</small></p>
         </div>
@@ -334,7 +334,7 @@ function setupEventListeners() {
       if (formState.selectedAgeGroupId) {
         const ageGroup = await mockAPI.getAgeGroupById(formState.selectedAgeGroupId);
         if (ageGroup) {
-          document.getElementById('survivalAgeGroup').value = ageGroup.ageGroup || '';
+          document.getElementById('survivalAgeGroup').value = ageGroup.ageGroup ?? '';
           document.getElementById('survivalAgeGroup').readOnly = true; // En lecture seule
 
           document.getElementById('ageGroupConsideredSurvival').value = ageGroup.consideredAs || '';
@@ -363,7 +363,7 @@ function setupEventListeners() {
       if (formState.selectedAgeGroupId) {
         const ageGroup = await mockAPI.getAgeGroupById(formState.selectedAgeGroupId);
         if (ageGroup) {
-          document.getElementById('fecundityAgeGroup').value = ageGroup.ageGroup || '';
+          document.getElementById('fecundityAgeGroup').value = ageGroup.ageGroup ?? '';
           document.getElementById('fecundityAgeGroup').readOnly = true; // En lecture seule
 
           document.getElementById('ageGroupConsideredFecundity').value = ageGroup.consideredAs || '';
@@ -414,16 +414,26 @@ function isValidSnakeCase(value) {
 }
 
 async function saveSpecies() {
-  const speciesFr = document.getElementById('speciesFr').value || null;
-  const speciesLat = document.getElementById('speciesLat').value;
+  const speciesFr = document.getElementById('speciesFr').value.trim();
+  const speciesLat = document.getElementById('speciesLat').value.trim();
   const speciesEn = document.getElementById('speciesEn').value || null;
 
+  // Validation champs obligatoires
+  if (!speciesFr) {
+    alert('Le nom français est obligatoire');
+    return;
+  }
+  if (!speciesLat) {
+    alert('Le nom latin est obligatoire');
+    return;
+  }
+
   // Validation snake_case
-  if (speciesFr && !isValidSnakeCase(speciesFr)) {
+  if (!isValidSnakeCase(speciesFr)) {
     alert('Le nom français doit être en snake_case (ex: pipistrelle_commune)');
     return;
   }
-  if (speciesLat && !isValidSnakeCase(speciesLat)) {
+  if (!isValidSnakeCase(speciesLat)) {
     alert('Le nom latin doit être en snake_case (ex: pipistrellus_pipistrellus)');
     return;
   }
@@ -441,11 +451,6 @@ async function saveSpecies() {
     inFrance: document.getElementById('inFrance').checked,
     inEurope: document.getElementById('inEurope').checked
   };
-
-  if (!data.speciesLat) {
-    alert('Le nom latin est obligatoire');
-    return;
-  }
 
   let result;
   if (formState.currentAction === 'create') {
@@ -579,7 +584,7 @@ async function saveAgeGroup() {
 
   const data = {
     bibliographySpeciesId: parseInt(bibliographySpeciesId),
-    ageGroup: parseInt(document.getElementById('ageGroup').value) || null,
+    ageGroup: document.getElementById('ageGroup').value || null,
     consideredAs: document.getElementById('consideredAs').value || null
   };
 
@@ -606,9 +611,10 @@ async function saveAgeGroup() {
 async function saveSurvival() {
   const data = {
     ageGroupId: parseInt(formState.selectedAgeGroupId),
-    ageGroup: parseInt(document.getElementById('survivalAgeGroup').value) || null,
+    ageGroup: document.getElementById('survivalAgeGroup').value || null,
     ageGroupConsideredInPublication: document.getElementById('ageGroupConsideredSurvival').value || null,
     sex: document.getElementById('sex').value || null,
+    // Champs principaux
     minSurvivalRate: parseFloat(document.getElementById('minSurvivalRate').value) || null,
     meanSurvivalRate: parseFloat(document.getElementById('meanSurvivalRate').value) || null,
     maxSurvivalRate: parseFloat(document.getElementById('maxSurvivalRate').value) || null,
@@ -616,9 +622,41 @@ async function saveSurvival() {
     minLongevityYears: parseFloat(document.getElementById('minLongevityYears').value) || null,
     meanLongevityYears: parseFloat(document.getElementById('meanLongevityYears').value) || null,
     maxLongevityYears: parseFloat(document.getElementById('maxLongevityYears').value) || null,
-    se: parseFloat(document.getElementById('survivalSE').value) || null,
-    lowCI: parseFloat(document.getElementById('survivalLowCI').value) || null,
-    highCI: parseFloat(document.getElementById('survivalHighCI').value) || null
+    // Données de confiance pour minSurvivalRate
+    minSurvivalRateSe: parseFloat(document.getElementById('minSurvivalRateSe').value) || null,
+    minSurvivalRateLowCI: parseFloat(document.getElementById('minSurvivalRateLowCI').value) || null,
+    minSurvivalRateHighCI: parseFloat(document.getElementById('minSurvivalRateHighCI').value) || null,
+    minSurvivalRateDataQuality: document.getElementById('minSurvivalRateDataQuality').value || null,
+    // Données de confiance pour meanSurvivalRate
+    meanSurvivalRateSe: parseFloat(document.getElementById('meanSurvivalRateSe').value) || null,
+    meanSurvivalRateLowCI: parseFloat(document.getElementById('meanSurvivalRateLowCI').value) || null,
+    meanSurvivalRateHighCI: parseFloat(document.getElementById('meanSurvivalRateHighCI').value) || null,
+    meanSurvivalRateDataQuality: document.getElementById('meanSurvivalRateDataQuality').value || null,
+    // Données de confiance pour maxSurvivalRate
+    maxSurvivalRateSe: parseFloat(document.getElementById('maxSurvivalRateSe').value) || null,
+    maxSurvivalRateLowCI: parseFloat(document.getElementById('maxSurvivalRateLowCI').value) || null,
+    maxSurvivalRateHighCI: parseFloat(document.getElementById('maxSurvivalRateHighCI').value) || null,
+    maxSurvivalRateDataQuality: document.getElementById('maxSurvivalRateDataQuality').value || null,
+    // Données de confiance pour recaptureProbability
+    recaptureProbabilitySe: parseFloat(document.getElementById('recaptureProbabilitySe').value) || null,
+    recaptureProbabilityLowCI: parseFloat(document.getElementById('recaptureProbabilityLowCI').value) || null,
+    recaptureProbabilityHighCI: parseFloat(document.getElementById('recaptureProbabilityHighCI').value) || null,
+    recaptureProbabilityDataQuality: document.getElementById('recaptureProbabilityDataQuality').value || null,
+    // Données de confiance pour minLongevityYears
+    minLongevityYearsSe: parseFloat(document.getElementById('minLongevityYearsSe').value) || null,
+    minLongevityYearsLowCI: parseFloat(document.getElementById('minLongevityYearsLowCI').value) || null,
+    minLongevityYearsHighCI: parseFloat(document.getElementById('minLongevityYearsHighCI').value) || null,
+    minLongevityYearsDataQuality: document.getElementById('minLongevityYearsDataQuality').value || null,
+    // Données de confiance pour meanLongevityYears
+    meanLongevityYearsSe: parseFloat(document.getElementById('meanLongevityYearsSe').value) || null,
+    meanLongevityYearsLowCI: parseFloat(document.getElementById('meanLongevityYearsLowCI').value) || null,
+    meanLongevityYearsHighCI: parseFloat(document.getElementById('meanLongevityYearsHighCI').value) || null,
+    meanLongevityYearsDataQuality: document.getElementById('meanLongevityYearsDataQuality').value || null,
+    // Données de confiance pour maxLongevityYears
+    maxLongevityYearsSe: parseFloat(document.getElementById('maxLongevityYearsSe').value) || null,
+    maxLongevityYearsLowCI: parseFloat(document.getElementById('maxLongevityYearsLowCI').value) || null,
+    maxLongevityYearsHighCI: parseFloat(document.getElementById('maxLongevityYearsHighCI').value) || null,
+    maxLongevityYearsDataQuality: document.getElementById('maxLongevityYearsDataQuality').value || null
   };
 
   if (formState.currentAction === 'create') {
@@ -636,17 +674,45 @@ async function saveSurvival() {
 async function saveFecundity() {
   const data = {
     ageGroupId: parseInt(formState.selectedAgeGroupId),
-    ageGroup: parseInt(document.getElementById('fecundityAgeGroup').value) || null,
+    ageGroup: document.getElementById('fecundityAgeGroup').value || null,
     ageGroupConsideredInPublication: document.getElementById('ageGroupConsideredFecundity').value || null,
+    // Champs principaux
     minFecundityRate: parseFloat(document.getElementById('minFecundityRate').value) || null,
     meanFecundityRate: parseFloat(document.getElementById('meanFecundityRate').value) || null,
     maxFecundityRate: parseFloat(document.getElementById('maxFecundityRate').value) || null,
     minProductivity: parseFloat(document.getElementById('minProductivity').value) || null,
     meanProductivity: parseFloat(document.getElementById('meanProductivity').value) || null,
     maxProductivity: parseFloat(document.getElementById('maxProductivity').value) || null,
-    se: parseFloat(document.getElementById('fecunditySE').value) || null,
-    lowCI: parseFloat(document.getElementById('fecundityLowCI').value) || null,
-    highCI: parseFloat(document.getElementById('fecundityHighCI').value) || null
+    // Données de confiance pour minFecundityRate
+    minFecundityRateSe: parseFloat(document.getElementById('minFecundityRateSe').value) || null,
+    minFecundityRateLowCI: parseFloat(document.getElementById('minFecundityRateLowCI').value) || null,
+    minFecundityRateHighCI: parseFloat(document.getElementById('minFecundityRateHighCI').value) || null,
+    minFecundityRateDataQuality: document.getElementById('minFecundityRateDataQuality').value || null,
+    // Données de confiance pour meanFecundityRate
+    meanFecundityRateSe: parseFloat(document.getElementById('meanFecundityRateSe').value) || null,
+    meanFecundityRateLowCI: parseFloat(document.getElementById('meanFecundityRateLowCI').value) || null,
+    meanFecundityRateHighCI: parseFloat(document.getElementById('meanFecundityRateHighCI').value) || null,
+    meanFecundityRateDataQuality: document.getElementById('meanFecundityRateDataQuality').value || null,
+    // Données de confiance pour maxFecundityRate
+    maxFecundityRateSe: parseFloat(document.getElementById('maxFecundityRateSe').value) || null,
+    maxFecundityRateLowCI: parseFloat(document.getElementById('maxFecundityRateLowCI').value) || null,
+    maxFecundityRateHighCI: parseFloat(document.getElementById('maxFecundityRateHighCI').value) || null,
+    maxFecundityRateDataQuality: document.getElementById('maxFecundityRateDataQuality').value || null,
+    // Données de confiance pour minProductivity
+    minProductivitySe: parseFloat(document.getElementById('minProductivitySe').value) || null,
+    minProductivityLowCI: parseFloat(document.getElementById('minProductivityLowCI').value) || null,
+    minProductivityHighCI: parseFloat(document.getElementById('minProductivityHighCI').value) || null,
+    minProductivityDataQuality: document.getElementById('minProductivityDataQuality').value || null,
+    // Données de confiance pour meanProductivity
+    meanProductivitySe: parseFloat(document.getElementById('meanProductivitySe').value) || null,
+    meanProductivityLowCI: parseFloat(document.getElementById('meanProductivityLowCI').value) || null,
+    meanProductivityHighCI: parseFloat(document.getElementById('meanProductivityHighCI').value) || null,
+    meanProductivityDataQuality: document.getElementById('meanProductivityDataQuality').value || null,
+    // Données de confiance pour maxProductivity
+    maxProductivitySe: parseFloat(document.getElementById('maxProductivitySe').value) || null,
+    maxProductivityLowCI: parseFloat(document.getElementById('maxProductivityLowCI').value) || null,
+    maxProductivityHighCI: parseFloat(document.getElementById('maxProductivityHighCI').value) || null,
+    maxProductivityDataQuality: document.getElementById('maxProductivityDataQuality').value || null
   };
 
   if (formState.currentAction === 'create') {
@@ -667,6 +733,11 @@ async function saveDispersal() {
     return val === '' ? null : parseFloat(val);
   };
 
+  const getStringValue = (id) => {
+    const val = document.getElementById(id).value;
+    return val === '' ? null : val;
+  };
+
   // Récupérer le bibliographySpeciesId
   const bibliographySpeciesId = await mockAPI.getBibliographySpeciesId(
     formState.selectedBibliographyId,
@@ -680,12 +751,25 @@ async function saveDispersal() {
 
   const data = {
     bibliographySpeciesId: parseInt(bibliographySpeciesId),
+    // Champs principaux
     meanDispersalDistance: getValue('meanDispersalDistance'),
     minDispersalDistance: getValue('minDispersalDistance'),
     maxDispersalDistance: getValue('maxDispersalDistance'),
-    se: getValue('dispersalSE'),
-    lowCI: getValue('dispersalLowCI'),
-    highCI: getValue('dispersalHighCI')
+    // Données de confiance pour meanDispersalDistance
+    meanDispersalDistanceSe: getValue('meanDispersalDistanceSe'),
+    meanDispersalDistanceLowCI: getValue('meanDispersalDistanceLowCI'),
+    meanDispersalDistanceHighCI: getValue('meanDispersalDistanceHighCI'),
+    meanDispersalDistanceDataQuality: getStringValue('meanDispersalDistanceDataQuality'),
+    // Données de confiance pour minDispersalDistance
+    minDispersalDistanceSe: getValue('minDispersalDistanceSe'),
+    minDispersalDistanceLowCI: getValue('minDispersalDistanceLowCI'),
+    minDispersalDistanceHighCI: getValue('minDispersalDistanceHighCI'),
+    minDispersalDistanceDataQuality: getStringValue('minDispersalDistanceDataQuality'),
+    // Données de confiance pour maxDispersalDistance
+    maxDispersalDistanceSe: getValue('maxDispersalDistanceSe'),
+    maxDispersalDistanceLowCI: getValue('maxDispersalDistanceLowCI'),
+    maxDispersalDistanceHighCI: getValue('maxDispersalDistanceHighCI'),
+    maxDispersalDistanceDataQuality: getStringValue('maxDispersalDistanceDataQuality')
   };
 
   if (formState.editingId) {
@@ -808,15 +892,16 @@ function fillBibliographyForm(bib) {
 
 function fillAgeGroupForm(group) {
   document.getElementById('ageGroupId').value = group.id;
-  document.getElementById('ageGroup').value = group.ageGroup || '';
+  document.getElementById('ageGroup').value = group.ageGroup ?? '';
   document.getElementById('consideredAs').value = group.consideredAs || '';
 }
 
 function fillSurvivalForm(survival) {
   document.getElementById('survivalId').value = survival.id;
-  document.getElementById('survivalAgeGroup').value = survival.ageGroup || '';
+  document.getElementById('survivalAgeGroup').value = survival.ageGroup ?? '';
   document.getElementById('ageGroupConsideredSurvival').value = survival.ageGroupConsideredInPublication || '';
   document.getElementById('sex').value = survival.sex || '';
+  // Champs principaux
   document.getElementById('minSurvivalRate').value = survival.minSurvivalRate || '';
   document.getElementById('meanSurvivalRate').value = survival.meanSurvivalRate || '';
   document.getElementById('maxSurvivalRate').value = survival.maxSurvivalRate || '';
@@ -824,34 +909,107 @@ function fillSurvivalForm(survival) {
   document.getElementById('minLongevityYears').value = survival.minLongevityYears || '';
   document.getElementById('meanLongevityYears').value = survival.meanLongevityYears || '';
   document.getElementById('maxLongevityYears').value = survival.maxLongevityYears || '';
-  document.getElementById('survivalSE').value = survival.se || '';
-  document.getElementById('survivalLowCI').value = survival.lowCI || '';
-  document.getElementById('survivalHighCI').value = survival.highCI || '';
+  // Données de confiance pour minSurvivalRate
+  document.getElementById('minSurvivalRateSe').value = survival.minSurvivalRateSe || '';
+  document.getElementById('minSurvivalRateLowCI').value = survival.minSurvivalRateLowCI || '';
+  document.getElementById('minSurvivalRateHighCI').value = survival.minSurvivalRateHighCI || '';
+  document.getElementById('minSurvivalRateDataQuality').value = survival.minSurvivalRateDataQuality || '';
+  // Données de confiance pour meanSurvivalRate
+  document.getElementById('meanSurvivalRateSe').value = survival.meanSurvivalRateSe || '';
+  document.getElementById('meanSurvivalRateLowCI').value = survival.meanSurvivalRateLowCI || '';
+  document.getElementById('meanSurvivalRateHighCI').value = survival.meanSurvivalRateHighCI || '';
+  document.getElementById('meanSurvivalRateDataQuality').value = survival.meanSurvivalRateDataQuality || '';
+  // Données de confiance pour maxSurvivalRate
+  document.getElementById('maxSurvivalRateSe').value = survival.maxSurvivalRateSe || '';
+  document.getElementById('maxSurvivalRateLowCI').value = survival.maxSurvivalRateLowCI || '';
+  document.getElementById('maxSurvivalRateHighCI').value = survival.maxSurvivalRateHighCI || '';
+  document.getElementById('maxSurvivalRateDataQuality').value = survival.maxSurvivalRateDataQuality || '';
+  // Données de confiance pour recaptureProbability
+  document.getElementById('recaptureProbabilitySe').value = survival.recaptureProbabilitySe || '';
+  document.getElementById('recaptureProbabilityLowCI').value = survival.recaptureProbabilityLowCI || '';
+  document.getElementById('recaptureProbabilityHighCI').value = survival.recaptureProbabilityHighCI || '';
+  document.getElementById('recaptureProbabilityDataQuality').value = survival.recaptureProbabilityDataQuality || '';
+  // Données de confiance pour minLongevityYears
+  document.getElementById('minLongevityYearsSe').value = survival.minLongevityYearsSe || '';
+  document.getElementById('minLongevityYearsLowCI').value = survival.minLongevityYearsLowCI || '';
+  document.getElementById('minLongevityYearsHighCI').value = survival.minLongevityYearsHighCI || '';
+  document.getElementById('minLongevityYearsDataQuality').value = survival.minLongevityYearsDataQuality || '';
+  // Données de confiance pour meanLongevityYears
+  document.getElementById('meanLongevityYearsSe').value = survival.meanLongevityYearsSe || '';
+  document.getElementById('meanLongevityYearsLowCI').value = survival.meanLongevityYearsLowCI || '';
+  document.getElementById('meanLongevityYearsHighCI').value = survival.meanLongevityYearsHighCI || '';
+  document.getElementById('meanLongevityYearsDataQuality').value = survival.meanLongevityYearsDataQuality || '';
+  // Données de confiance pour maxLongevityYears
+  document.getElementById('maxLongevityYearsSe').value = survival.maxLongevityYearsSe || '';
+  document.getElementById('maxLongevityYearsLowCI').value = survival.maxLongevityYearsLowCI || '';
+  document.getElementById('maxLongevityYearsHighCI').value = survival.maxLongevityYearsHighCI || '';
+  document.getElementById('maxLongevityYearsDataQuality').value = survival.maxLongevityYearsDataQuality || '';
 }
 
 function fillFecundityForm(fecundity) {
   document.getElementById('fecundityId').value = fecundity.id;
-  document.getElementById('fecundityAgeGroup').value = fecundity.ageGroup || '';
+  document.getElementById('fecundityAgeGroup').value = fecundity.ageGroup ?? '';
   document.getElementById('ageGroupConsideredFecundity').value = fecundity.ageGroupConsideredInPublication || '';
+  // Champs principaux
   document.getElementById('minFecundityRate').value = fecundity.minFecundityRate || '';
   document.getElementById('meanFecundityRate').value = fecundity.meanFecundityRate || '';
   document.getElementById('maxFecundityRate').value = fecundity.maxFecundityRate || '';
   document.getElementById('minProductivity').value = fecundity.minProductivity || '';
   document.getElementById('meanProductivity').value = fecundity.meanProductivity || '';
   document.getElementById('maxProductivity').value = fecundity.maxProductivity || '';
-  document.getElementById('fecunditySE').value = fecundity.se || '';
-  document.getElementById('fecundityLowCI').value = fecundity.lowCI || '';
-  document.getElementById('fecundityHighCI').value = fecundity.highCI || '';
+  // Données de confiance pour minFecundityRate
+  document.getElementById('minFecundityRateSe').value = fecundity.minFecundityRateSe || '';
+  document.getElementById('minFecundityRateLowCI').value = fecundity.minFecundityRateLowCI || '';
+  document.getElementById('minFecundityRateHighCI').value = fecundity.minFecundityRateHighCI || '';
+  document.getElementById('minFecundityRateDataQuality').value = fecundity.minFecundityRateDataQuality || '';
+  // Données de confiance pour meanFecundityRate
+  document.getElementById('meanFecundityRateSe').value = fecundity.meanFecundityRateSe || '';
+  document.getElementById('meanFecundityRateLowCI').value = fecundity.meanFecundityRateLowCI || '';
+  document.getElementById('meanFecundityRateHighCI').value = fecundity.meanFecundityRateHighCI || '';
+  document.getElementById('meanFecundityRateDataQuality').value = fecundity.meanFecundityRateDataQuality || '';
+  // Données de confiance pour maxFecundityRate
+  document.getElementById('maxFecundityRateSe').value = fecundity.maxFecundityRateSe || '';
+  document.getElementById('maxFecundityRateLowCI').value = fecundity.maxFecundityRateLowCI || '';
+  document.getElementById('maxFecundityRateHighCI').value = fecundity.maxFecundityRateHighCI || '';
+  document.getElementById('maxFecundityRateDataQuality').value = fecundity.maxFecundityRateDataQuality || '';
+  // Données de confiance pour minProductivity
+  document.getElementById('minProductivitySe').value = fecundity.minProductivitySe || '';
+  document.getElementById('minProductivityLowCI').value = fecundity.minProductivityLowCI || '';
+  document.getElementById('minProductivityHighCI').value = fecundity.minProductivityHighCI || '';
+  document.getElementById('minProductivityDataQuality').value = fecundity.minProductivityDataQuality || '';
+  // Données de confiance pour meanProductivity
+  document.getElementById('meanProductivitySe').value = fecundity.meanProductivitySe || '';
+  document.getElementById('meanProductivityLowCI').value = fecundity.meanProductivityLowCI || '';
+  document.getElementById('meanProductivityHighCI').value = fecundity.meanProductivityHighCI || '';
+  document.getElementById('meanProductivityDataQuality').value = fecundity.meanProductivityDataQuality || '';
+  // Données de confiance pour maxProductivity
+  document.getElementById('maxProductivitySe').value = fecundity.maxProductivitySe || '';
+  document.getElementById('maxProductivityLowCI').value = fecundity.maxProductivityLowCI || '';
+  document.getElementById('maxProductivityHighCI').value = fecundity.maxProductivityHighCI || '';
+  document.getElementById('maxProductivityDataQuality').value = fecundity.maxProductivityDataQuality || '';
 }
 
 function fillDispersalForm(dispersal) {
   document.getElementById('dispersalId').value = dispersal.id;
+  // Champs principaux
   document.getElementById('meanDispersalDistance').value = dispersal.meanDispersalDistance || '';
   document.getElementById('minDispersalDistance').value = dispersal.minDispersalDistance || '';
   document.getElementById('maxDispersalDistance').value = dispersal.maxDispersalDistance || '';
-  document.getElementById('dispersalSE').value = dispersal.se || '';
-  document.getElementById('dispersalLowCI').value = dispersal.lowCI || '';
-  document.getElementById('dispersalHighCI').value = dispersal.highCI || '';
+  // Données de confiance pour meanDispersalDistance
+  document.getElementById('meanDispersalDistanceSe').value = dispersal.meanDispersalDistanceSe || '';
+  document.getElementById('meanDispersalDistanceLowCI').value = dispersal.meanDispersalDistanceLowCI || '';
+  document.getElementById('meanDispersalDistanceHighCI').value = dispersal.meanDispersalDistanceHighCI || '';
+  document.getElementById('meanDispersalDistanceDataQuality').value = dispersal.meanDispersalDistanceDataQuality || '';
+  // Données de confiance pour minDispersalDistance
+  document.getElementById('minDispersalDistanceSe').value = dispersal.minDispersalDistanceSe || '';
+  document.getElementById('minDispersalDistanceLowCI').value = dispersal.minDispersalDistanceLowCI || '';
+  document.getElementById('minDispersalDistanceHighCI').value = dispersal.minDispersalDistanceHighCI || '';
+  document.getElementById('minDispersalDistanceDataQuality').value = dispersal.minDispersalDistanceDataQuality || '';
+  // Données de confiance pour maxDispersalDistance
+  document.getElementById('maxDispersalDistanceSe').value = dispersal.maxDispersalDistanceSe || '';
+  document.getElementById('maxDispersalDistanceLowCI').value = dispersal.maxDispersalDistanceLowCI || '';
+  document.getElementById('maxDispersalDistanceHighCI').value = dispersal.maxDispersalDistanceHighCI || '';
+  document.getElementById('maxDispersalDistanceDataQuality').value = dispersal.maxDispersalDistanceDataQuality || '';
 }
 
 // ============================================
